@@ -1,0 +1,12 @@
+title: "Why Airplanes Don't Fall"
+number: 1
+series: "everyday-science"
+status: animated
+duration_target: "3-4 min"
+tags: [science, physics, aviation]
+scenes:
+  - Intro
+  - WindAndWing
+  - LiftExplained
+  - MythBust
+  - Outro

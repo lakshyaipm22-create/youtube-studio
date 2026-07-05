@@ -1,0 +1,13 @@
+stages:
+  - name: research
+    status: complete
+    completed_at: "2026-07-05T00:01:00+00:00"
+  - name: script
+    status: complete
+    completed_at: "2026-07-05T00:02:00+00:00"
+  - name: storyboard
+    status: complete
+    completed_at: "2026-07-05T00:03:00+00:00"
+  - name: manim_code
+    status: complete
+    completed_at: "2026-07-05T00:04:00+00:00"
