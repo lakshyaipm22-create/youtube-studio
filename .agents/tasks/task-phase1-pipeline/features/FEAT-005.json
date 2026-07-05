@@ -1,0 +1,30 @@
+{
+  "id": "FEAT-005",
+  "type": "feat",
+  "description": "Create timing pipeline stage and studio/timing.py helper to synchronize animation timing with voiceover duration. Add duration validation in export stage.",
+  "status": "in_progress",
+  "steps": [
+    "Create pipeline/stages/timing.py: runs after voice, uses faster-whisper with word_timestamps=True to extract per-segment timing, matches segments to script scenes using # Scene headers, outputs timing.yaml",
+    "Create studio/timing.py: helper module with load_timing() and data classes for scenes to consume timing information",
+    "Update pipeline/stages/__init__.py to add timing stage after voice and before subtitles/render",
+    "Update pipeline/stages/export.py to add duration validation (video duration vs voice duration, warn if >2s difference)",
+    "Add tests for timing stage and studio/timing.py",
+    "Run ruff check . && ruff format --check . && pytest tests/ -v"
+  ],
+  "acceptance_criteria": [
+    "pipeline/stages/timing.py exists and produces timing.yaml",
+    "studio/timing.py exists with load_timing() and get_scene_duration() functions",
+    "timing stage is registered after voice in STAGES list",
+    "export stage validates video vs voice duration",
+    "ruff check . passes",
+    "ruff format --check . passes",
+    "pytest tests/ -v passes all tests (60 existing + new)"
+  ],
+  "verification": [
+    "ruff check .",
+    "ruff format --check .",
+    "pytest tests/ -v"
+  ],
+  "blocked_reason": null,
+  "findings": null
+}

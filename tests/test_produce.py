@@ -230,7 +230,7 @@ class TestStageOrdering:
     def test_stage_count(self):
         from pipeline.stages import STAGES
 
-        assert len(STAGES) == 9
+        assert len(STAGES) == 10
 
     def test_stage_order(self):
         from pipeline.stages import STAGE_NAMES
@@ -242,6 +242,7 @@ class TestStageOrdering:
             "animation_plan",
             "manim_code",
             "voice",
+            "timing",
             "subtitles",
             "render",
             "export",

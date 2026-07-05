@@ -2,15 +2,20 @@
 YouTube Studio - Export Stage
 
 Takes rendered scenes, voiceover, and subtitles to produce final.mp4.
-Uses the existing pipeline/export.py logic.
+Uses the existing pipeline/export.py logic. Includes duration validation
+to ensure rendered video duration approximately matches voiceover duration.
 """
 
 import logging
 import shutil
+import subprocess
+from pathlib import Path
 
 from pipeline.stages.base import StageRunner
 
 logger = logging.getLogger("pipeline")
+
+DURATION_TOLERANCE_SECONDS = 2.0
 
 
 class ExportStage(StageRunner):
@@ -93,4 +98,72 @@ class ExportStage(StageRunner):
             merged_path.unlink(missing_ok=True)
 
         logger.info(f"[export] Final video: {final_path.name}")
+
+        # Validate duration sync between video and voiceover
+        self._validate_duration_sync(final_path, voiceover_path)
+
         return True
+
+    def _validate_duration_sync(self, video_path: Path, voiceover_path: Path | None) -> None:
+        """Check that rendered video duration approximately matches voiceover duration.
+
+        Logs a warning if the difference exceeds the tolerance threshold.
+
+        Args:
+            video_path: Path to the final rendered video.
+            voiceover_path: Path to the voiceover audio file, or None.
+        """
+        if voiceover_path is None:
+            return
+
+        video_duration = _get_media_duration(video_path)
+        voice_duration = _get_media_duration(voiceover_path)
+
+        if video_duration is None or voice_duration is None:
+            logger.warning("[export] Could not determine media durations for sync validation")
+            return
+
+        diff = abs(video_duration - voice_duration)
+        if diff > DURATION_TOLERANCE_SECONDS:
+            logger.warning(
+                f"[export] Duration mismatch: video={video_duration:.1f}s, "
+                f"voice={voice_duration:.1f}s, diff={diff:.1f}s "
+                f"(tolerance: {DURATION_TOLERANCE_SECONDS}s)"
+            )
+        else:
+            logger.info(
+                f"[export] Duration sync OK: video={video_duration:.1f}s, "
+                f"voice={voice_duration:.1f}s, diff={diff:.1f}s"
+            )
+
+
+def _get_media_duration(file_path: Path) -> float | None:
+    """Get the duration of a media file using ffprobe.
+
+    Args:
+        file_path: Path to a video or audio file.
+
+    Returns:
+        Duration in seconds, or None if ffprobe is unavailable or fails.
+    """
+    try:
+        result = subprocess.run(
+            [
+                "ffprobe",
+                "-v",
+                "quiet",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                str(file_path),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return float(result.stdout.strip())
+    except (FileNotFoundError, subprocess.TimeoutExpired, ValueError):
+        pass
+    return None
