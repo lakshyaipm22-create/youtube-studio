@@ -104,9 +104,8 @@ def main():
 
     if not video_dir.exists():
         print(f"❌ Video not found: {args.video}")
-        print(
-            f"   Available: {[d.name for d in VIDEOS_DIR.iterdir() if d.is_dir() and d.name != '_template']}"
-        )
+        available = [d.name for d in VIDEOS_DIR.iterdir() if d.is_dir() and d.name != "_template"]
+        print(f"   Available: {available}")
         raise SystemExit(1)
 
     scenes_file = video_dir / "scenes.py"

@@ -1,0 +1,30 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Add tests for the pipeline system: test stage validation, status tracking, CLI argument parsing, LLM fallback, and end-to-end dry run. Verify everything passes ruff and pytest.",
+  "status": "pending",
+  "steps": [
+    "Create tests/ directory at project root",
+    "Create tests/__init__.py (empty)",
+    "Create tests/conftest.py with fixtures: tmp video folder, sample topic.yaml, sample research.yaml, sample script.md, etc.",
+    "Create tests/test_produce.py: test CLI arg parsing (--help, --from, --only, positional topic), test stage ordering, test dry run mode",
+    "Create tests/test_stages.py: test that each stage validates its input correctly (fails gracefully when previous output missing), test status.yaml updates",
+    "Create tests/test_llm.py: test the fallback/placeholder mode generates valid structured output, test the generate() function interface",
+    "Run pytest tests/ -v and ensure all tests pass",
+    "Run ruff check . and ruff format --check . and ensure all pass"
+  ],
+  "acceptance_criteria": [
+    "tests/ directory exists with test files",
+    "pytest tests/ -v passes all tests",
+    "ruff check . passes (including test files)",
+    "ruff format --check . passes (including test files)",
+    "Tests cover: CLI parsing, stage validation, status tracking, LLM fallback"
+  ],
+  "verification": [
+    "pytest tests/ -v",
+    "ruff check .",
+    "ruff format --check ."
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
