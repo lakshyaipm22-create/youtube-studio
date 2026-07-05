@@ -14,6 +14,7 @@ from pipeline.stages.research import ResearchStage
 from pipeline.stages.script import ScriptStage
 from pipeline.stages.storyboard import StoryboardStage
 from pipeline.stages.subtitles import SubtitlesStage
+from pipeline.stages.timing import TimingStage
 from pipeline.stages.voice import VoiceStage
 
 # Ordered list of (stage_name, stage_class) tuples
@@ -24,6 +25,7 @@ STAGES: list[tuple[str, type[StageRunner]]] = [
     ("animation_plan", AnimationPlanStage),
     ("manim_code", ManimCodeStage),
     ("voice", VoiceStage),
+    ("timing", TimingStage),
     ("subtitles", SubtitlesStage),
     ("render", RenderStage),
     ("export", ExportStage),
