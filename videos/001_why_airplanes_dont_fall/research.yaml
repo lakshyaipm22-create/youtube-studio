@@ -1,0 +1,39 @@
+topic: "Why Airplanes Don't Fall"
+
+hook_ideas:
+  - "A Boeing 747 weighs 400 tons. That's 80 elephants. And somehow... it flies."
+  - "Everything your science teacher told you about how planes fly? Mostly wrong."
+  - "Right now, 10,000 planes are defying gravity overhead. Not one of them should be there."
+
+surprising_facts:
+  - A fully loaded 747 generates over 600,000 pounds of lift just from its wings
+  - Planes can fly perfectly well upside down, disproving the simple Bernoulli-only explanation
+  - The Wright brothers wind-tunnel tested over 200 wing shapes before their first flight
+  - Air hitting a wing at cruise speed gets deflected downward at roughly 6-10 degrees
+  - A hummingbird and a 747 use the exact same physics to stay airborne
+  - At cruise altitude, the pressure difference across a wing is less than 1 PSI
+
+misconceptions:
+  - "Air travels faster over the top because the path is longer (equal transit time) - NASA has explicitly debunked this myth"
+  - "Bernoulli's principle alone explains lift - it actually requires Newton's third law working together"
+  - "Wings must be curved on top to generate lift - flat wings and even upside-down curved wings work fine"
+
+analogies:
+  - "Stick your hand out a car window and tilt it up slightly - that force pushing your hand up IS lift, and it works the same way on a wing"
+  - "A wing is like a water ski cutting through water - push fluid one direction, you go the other direction"
+  - "Think of the wing as a ramp for air - air slides down the ramp, and the reaction shoves the plane up"
+
+key_facts:
+  - Wings generate lift primarily by deflecting air downward (Newton's third law)
+  - The curved upper surface creates lower pressure above the wing (Bernoulli's principle)
+  - Angle of attack (wing tilt relative to airflow) is the single most important lift variable
+  - The real explanation of lift requires BOTH Newton and Bernoulli working together
+  - A stall occurs when the angle of attack exceeds roughly 15 degrees and airflow separates
+  - Flaps, slats, and ailerons all work by changing the effective wing shape and angle
+
+thumbnail_idea: "Split image: left side shows 80 elephants stacked up, right side shows a 747 soaring. Giant bold text: '400 TONS?!' with upward arrows. High contrast blue sky background."
+
+sources:
+  - "NASA Glenn Research Center - Beginner's Guide to Aeronautics (Theories of Lift)"
+  - "University of Cambridge Department of Engineering - How Do Wings Work?"
+  - "Feynman Lectures on Physics Vol. II, Chapter 40-41 (Flow of Dry Water / Wet Water)"

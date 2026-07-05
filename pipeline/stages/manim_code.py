@@ -1,7 +1,8 @@
 """
 YouTube Studio - Manim Code Generation Stage
 
-Takes animation_plan.yaml and generates scenes.py with Manim scene classes.
+Takes animation_plan.yaml and generates scenes.py with Manim scene classes
+that use the studio/ library (StudioScene, brand helpers, timing constants).
 """
 
 import logging
@@ -31,21 +32,63 @@ class ManimCodeStage(StageRunner):
 Animation Plan:
 {plan_content}
 
-Requirements:
-- Import from manim: from manim import *
-- Each scene is a class inheriting from Scene
-- Class names must match the scene names from the plan
-- Each class has a construct(self) method
-- Use proper Manim animations: FadeIn, FadeOut, Write, Create, Transform, etc.
-- Use self.play() for animations and self.wait() for pauses
-- Keep the code clean and well-commented
-- Add a module docstring at the top
+MANDATORY IMPORTS AND PATTERNS:
 
-Output ONLY the Python code. No markdown code fences."""
+The file MUST start with these exact imports:
+```python
+from manim import *
+
+from studio.base import StudioScene
+from studio.styles import *
+```
+
+MANDATORY RULES:
+
+1. Every scene class MUST inherit from StudioScene (not Scene):
+   class MyScene(StudioScene):
+
+2. Use brand helpers for ALL text:
+   - brand_text("text") for body text
+   - brand_title("text") for titles
+   - self.make_title("text") for positioned titles
+   - self.make_body("text") for positioned body text
+
+3. Use timing constants for ALL animations:
+   - run_time=FADE_NORMAL (0.5s) for standard transitions
+   - run_time=FADE_FAST (0.3s) for quick transitions
+   - run_time=FADE_SLOW (0.8s) for dramatic reveals
+   - self.pause_beat() between animations
+   - self.pause_medium() for viewer absorption
+   - self.pause_short() for brief reading pauses
+
+4. Use position constants:
+   - POS_TITLE for title positioning
+   - POS_CENTER for center content
+   - POS_SUBTITLE for subtitles
+   - POS_FOOTER for captions
+
+5. Transitions between content:
+   - self.fade_out_all() to clear everything
+   - Use FadeIn, FadeOut, Write, Create, Transform, GrowArrow
+   - NEVER use self.add() or self.remove() directly
+   - Always animate entrances and exits
+
+6. No static frame longer than 3 seconds:
+   - Always have motion or transformation
+   - Use self.wait() sparingly and only with short durations
+
+7. Use brand colors:
+   - BRAND_PRIMARY for highlights
+   - BRAND_SECONDARY for accents
+   - BRAND_LIGHT for text
+   - BRAND_ACCENT for success/tips
+
+Output ONLY the Python code. No markdown code fences. No explanations."""
 
         system_prompt = (
-            "You are a Manim expert. Generate clean, working Manim code "
-            "that produces smooth educational animations."
+            "You are a Manim expert who writes production-quality animation code "
+            "using the studio/ library. Generate clean, working Manim code "
+            "that inherits from StudioScene and uses brand helpers and timing constants."
         )
 
         response = generate(prompt, system_prompt=system_prompt)

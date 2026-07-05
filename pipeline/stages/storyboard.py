@@ -1,7 +1,8 @@
 """
 YouTube Studio - Storyboard Stage
 
-Takes script.md and generates storyboard.md with per-scene visual plans.
+Takes script.md and generates storyboard.md with detailed per-scene
+visual plans: entrances, exits, transforms, timing, and SVG requirements.
 """
 
 import logging
@@ -27,32 +28,62 @@ class StoryboardStage(StageRunner):
         script_path = self.video_dir / "script.md"
         script_content = script_path.read_text()
 
-        # Load scene planner template
-        template_path = ROOT / "prompts" / "scene_planner.md"
-        template = ""
-        if template_path.exists():
-            template = template_path.read_text()
-
-        prompt = f"""Design the visual storyboard for the following video script.
+        prompt = f"""Design a detailed visual storyboard for the following video script.
 
 Script:
+---
 {script_content}
+---
 
-Follow the scene planning format from the template:
-{template}
+STORYBOARD RULES:
 
-For each scene, provide:
-1. Visual Goal
-2. Animation Sequence with timestamps
-3. Duration
-4. Manim Objects to use
-5. Transitions
+1. For each scene segment, define what appears on screen every 3-5 seconds.
+   - No static frame may last longer than 3 seconds.
+   - Something must always be entering, moving, transforming, or exiting.
 
-Output as markdown."""
+2. For each visual beat, specify:
+   - ENTRANCE: How does it appear? (FadeIn, Write, Create, GrowFromCenter, etc.)
+   - ON SCREEN: What transforms happen? (scale, recolor, move, morph)
+   - EXIT: How does it leave? (FadeOut, Uncreate, shrink, slide off)
+
+3. Specify SVGs or illustrations needed:
+   - What objects need custom SVG artwork?
+   - What can be built from primitives (arrows, circles, text)?
+
+4. Plan camera movement:
+   - When to zoom in (draw attention to detail)
+   - When to zoom out (show big picture)
+   - When to pan (follow a sequence)
+   - Default: static (only move with purpose)
+
+5. Ensure visual variety:
+   - Never show text alone without an accompanying visual
+   - Alternate between diagrams, comparisons, transformations, and reveals
+   - Build complexity gradually within each scene
+
+FORMAT for each scene:
+
+## Scene N: [Name]
+Duration: Xs
+
+Visual Goal: [What the viewer should understand from this scene]
+
+| Time | Element | Animation | Notes |
+|------|---------|-----------|-------|
+| 0.0s | ... | Entrance: FadeIn | ... |
+| 3.0s | ... | Transform: scale up | ... |
+| 5.0s | ... | Exit: FadeOut | ... |
+
+SVGs Needed: [list any custom illustrations]
+Camera: [static / zoom in / pan left / etc.]
+Transition to Next: [how this scene ends and connects to the next]
+
+Create the storyboard now. Be specific and practical."""
 
         system_prompt = (
             "You are a visual director for educational YouTube animations. "
-            "Design clear, engaging storyboards that keep viewers watching."
+            "Design storyboards where every second has purpose and motion. "
+            "No frame stays static for more than 3 seconds. Think like an animator."
         )
 
         response = generate(prompt, system_prompt=system_prompt)

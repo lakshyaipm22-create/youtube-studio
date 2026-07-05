@@ -1,8 +1,8 @@
 """
 YouTube Studio - Research Stage
 
-Takes topic.yaml and generates research.yaml with key facts,
-hook ideas, misconceptions, analogies, and sources.
+Takes topic.yaml and generates research.yaml with YouTube-optimized
+research: hooks, surprising facts, misconceptions, analogies, and thumbnail ideas.
 """
 
 import logging
@@ -31,24 +31,59 @@ class ResearchStage(StageRunner):
 
         topic = topic_data.get("topic", "Unknown Topic")
         tags = topic_data.get("tags", [])
+        duration = topic_data.get("duration_target", "3-4 min")
 
-        prompt = f"""Research the following topic for a 3-5 minute educational YouTube video.
+        prompt = f"""Research the following topic for a {duration} educational YouTube video.
 
 Topic: {topic}
 Tags: {", ".join(tags) if tags else "general education"}
 
-Provide your research in YAML format with these fields:
-- topic: the topic name
-- hook_ideas: 2-3 attention-grabbing opening lines
-- key_facts: 4-6 important facts to cover
-- misconceptions: 2-3 common misconceptions to address
-- analogies: 2-3 simple analogies to explain complex parts
-- sources: 2-3 reference sources
+Your job is to find everything needed to make this video IRRESISTIBLE to click and
+IMPOSSIBLE to stop watching. Think like a top YouTube creator, not a textbook author.
 
-Output ONLY valid YAML, no markdown code fences."""
+Provide your research as clean YAML with these exact fields:
+
+topic: "{topic}"
+
+hook_ideas:
+  # 3 opening lines that create a CURIOSITY GAP.
+  # Each must make the viewer NEED to know the answer.
+  # Never start with "Hello everyone" or "In this video".
+  # Use: surprising facts, impossible questions, shocking comparisons.
+
+surprising_facts:
+  # 4-5 facts that make people say "Wait... really?"
+  # These are retention anchors - spread throughout the video.
+  # Include specific numbers, counterintuitive truths, mind-blowing comparisons.
+
+misconceptions:
+  # 2-3 things most people believe that are WRONG about this topic.
+  # Debunking misconceptions is one of the strongest retention tools.
+  # Frame as "most people think X, but actually Y".
+
+analogies:
+  # 3 simple analogies a 16-year-old would immediately understand.
+  # Use everyday experiences (car window, kitchen, sports, phone).
+  # Each analogy must make a complex idea feel obvious.
+
+key_facts:
+  # 5-6 core facts that form the educational backbone.
+  # Order them from most engaging to most technical.
+  # Each fact should be animatable (can be shown visually).
+
+thumbnail_idea:
+  # ONE powerful visual concept for the thumbnail.
+  # Must be simple, high-contrast, and trigger curiosity.
+  # Describe what the viewer sees (not abstract concepts).
+
+sources:
+  # 2-3 authoritative references for accuracy.
+
+Output ONLY valid YAML. No markdown code fences. No extra commentary."""
 
         system_prompt = (
             "You are a research assistant for educational YouTube videos. "
+            "Your research optimizes for viewer curiosity, retention, and shareability. "
             "Provide accurate, well-structured research in YAML format."
         )
 

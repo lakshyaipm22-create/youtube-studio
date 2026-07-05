@@ -1,7 +1,8 @@
 """
 YouTube Studio - Script Stage
 
-Takes research.yaml and generates script.md using the script_writer prompt template.
+Takes research.yaml and generates script.md following the YouTube strategy rules:
+hook first, conversational tone, visual directions, curiosity loops.
 """
 
 import logging
@@ -29,46 +30,65 @@ class ScriptStage(StageRunner):
         research_path = self.video_dir / "research.yaml"
 
         with open(research_path) as f:
+            research_content = f.read()
+
+        with open(research_path) as f:
             research_data = yaml.safe_load(f)
 
-        # Load prompt template
-        template_path = ROOT / "prompts" / "script_writer.md"
-        template = ""
-        if template_path.exists():
-            template = template_path.read_text()
-
         topic = research_data.get("topic", "Unknown Topic")
-        hook_ideas = research_data.get("hook_ideas", [])
-        key_facts = research_data.get("key_facts", [])
-        misconceptions = research_data.get("misconceptions", [])
-        analogies = research_data.get("analogies", [])
 
-        prompt = f"""Write a YouTube video script based on the following research.
+        prompt = f"""Write a YouTube video script for: "{topic}"
 
-Topic: {topic}
+Here is the complete research to work from:
 
-Hook Ideas:
-{_format_list(hook_ideas)}
+---
+{research_content}
+---
 
-Key Facts:
-{_format_list(key_facts)}
+SCRIPT RULES (follow ALL of these):
 
-Misconceptions to Address:
-{_format_list(misconceptions)}
+1. HOOK (first 5-10 seconds):
+   - Open with a surprising fact, shocking comparison, or impossible question.
+   - NEVER start with "Hello everyone", "Today we are going to", or "In this video".
+   - The viewer must immediately NEED to know the answer.
 
-Analogies:
-{_format_list(analogies)}
+2. TONE:
+   - Conversational. Like explaining to a curious friend.
+   - Short sentences. Simple words. No jargon without immediate explanation.
+   - Natural humor where it fits (funny comparisons, mild exaggeration).
+   - No filler words or phrases. Every sentence earns its place.
 
-Follow the script format from the template:
-{template}
+3. VISUAL DIRECTIONS:
+   - Every 2-3 sentences, include a [VISUAL: ...] direction.
+   - Each [VISUAL] must describe what appears on screen and how it moves.
+   - Every sentence must be animatable. If you cannot picture it, rewrite it.
 
-Write the complete script in markdown. Include [VISUAL] directions and NARRATION text.
-Use the hook ideas, facts, and analogies naturally.
-Target length: 3-4 minutes of narration."""
+4. STRUCTURE:
+   - Use curiosity loops: hint at something coming, deliver later.
+   - Alternate between explanations, examples, rhetorical questions, and surprises.
+   - Build from simple to complex.
+   - Debunk at least one misconception.
+
+5. LENGTH:
+   - Target 500-700 words of narration (3-4 minutes when spoken).
+   - Keep paragraphs to 2-3 sentences max.
+
+6. ENDING:
+   - Brief recap of the key insight (1-2 sentences).
+   - Call to action: subscribe, comment, or question for next video.
+   - End on a memorable line or callback to the hook.
+
+FORMAT:
+- Use markdown with # headers for scene breaks.
+- [VISUAL: description] on its own line before the narration it accompanies.
+- Write narration as plain text (what the voice says).
+
+Write the complete script now."""
 
         system_prompt = (
-            "You are a YouTube script writer. Write engaging, educational scripts "
-            "with clear narration and visual directions. Keep sentences short and natural."
+            "You are a YouTube script writer who creates viral educational content. "
+            "Write engaging, visual, punchy scripts with short sentences and natural humor. "
+            "Every script must hook in the first 5 seconds and keep viewers watching."
         )
 
         response = generate(prompt, system_prompt=system_prompt)
@@ -79,10 +99,3 @@ Target length: 3-4 minutes of narration."""
 
         logger.info(f"[script] Saved: {output_path.name}")
         return True
-
-
-def _format_list(items: list) -> str:
-    """Format a list of items as bullet points."""
-    if not items:
-        return "  (none)"
-    return "\n".join(f"  - {item}" for item in items)
