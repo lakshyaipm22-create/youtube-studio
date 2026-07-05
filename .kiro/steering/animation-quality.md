@@ -1,89 +1,112 @@
 # Animation & Visual Design Standards
 
 This file governs how animations are designed and coded.
-It is subordinate to `youtube-strategy.md` — every animation decision serves viewer retention.
+Subordinate to `youtube-strategy.md` — every animation decision serves viewer retention.
 
 ## Core Principle
 
-Think like an animator, not a programmer.
-Prioritize viewer engagement over minimizing code.
+Think like an animator for a 500K-subscriber educational channel.
+Every frame should look like a screenshot worth sharing.
 
-## Scene Design Process (Mandatory)
+## Technical Foundation
 
-Before writing ANY Manim code, complete these steps:
-
-1. Define the visual goal — what should the viewer understand?
-2. Decide camera movement — static, zoom, pan, or follow?
-3. Design the animation sequence — what appears, transforms, moves, exits?
-4. Decide object transformations — morph, scale, recolor, reposition?
-5. Plan pacing — match narration rhythm, vary speed for emphasis
-6. Plan transitions — smooth connection to next scene
-7. THEN write Manim code
+- Use `VoiceoverScene` + `MovingCameraScene` (dual inheritance)
+- Use `manim-voiceover` with `GTTSService` for auto voice-animation sync
+- Config: 1920x1080, 60fps, dark background (#0e1116 or #0D0D1A)
+- Each `with self.voiceover(text=...)` block = one animation beat
 
 ## Visual Rules
 
-- Never leave the screen static for more than 3 seconds
-- Always animate entrances (FadeIn, Write, Create — never `self.add()`)
-- Always animate exits (FadeOut, Uncreate — never `self.remove()`)
-- Avoid text-only scenes — always pair text with visuals
-- Use SVG illustrations from `assets/svg/` over primitive shapes
-- Limit on-screen text to 2 lines maximum
-- Use stagger delays (0.2s) when revealing groups
-- Prefer Transform/ReplacementTransform over FadeOut + FadeIn
-- Objects move with purpose (toward related objects, along logical paths)
-- One focal point at a time — don't compete for attention
+### Background
+- NEVER use a flat single color
+- Use dark navy (#0e1116) which has inherent depth
+- Optionally add a subtle gradient or vignette for premium feel
 
-## Camera Rules
+### Frame Density (The #1 Improvement)
+Every frame should have multiple layers:
+- Section title or context (top)
+- Main visual (center)
+- Labels, annotations, measurements
+- Subtitle bar or narration text (bottom)
+- Never a single lonely object on empty background
 
-- Subtle zoom (1.0 → 1.2) to draw attention
-- Pan to follow sequences or timelines
-- Reset camera before new sections
-- Never move the camera without purpose
+### Color Palette (Proven)
+- Background: `#0e1116` (deep navy-black)
+- Gold: `#F5C842` (emphasis, numbers, key reveals)
+- Teal: `#2DCDC6` (positive, actions, CTAs)
+- Coral/Red: `#FF6B6B` (danger, wrong, attention)
+- Soft white: `#E8E8F0` (body text)
+- Muted: `#6B6B8A` (secondary info)
+- Purple: `#7B5EA7` (categories, labels)
+- Green: `#4CAF7D` (success, correct)
 
-## Transition Rules
+### Typography Hierarchy
+- Impact numbers: font_size=80-96, BOLD, GOLD
+- Section titles: font_size=34-40, BOLD, BLUE/TEAL
+- Key statements: font_size=44-52, BOLD, topic color
+- Body text: font_size=28-32, normal weight, SOFT_WHT
+- Labels: font_size=20-24, normal, GREY
+- Annotations: font_size=18-22, ITALIC, MUTED
 
-- Every scene ends with a clear exit animation
-- Default: `self.fade_out_all()`
-- Related scenes: transform key object into next scene's starting point
-- New topics: full fade to dark + brief pause + new entrance
-- Never cut abruptly
+### Animation Variety (Never Repeat)
+Use at minimum 7+ different animation types per video:
+- `FadeIn` (with shift/scale) — default entrances
+- `Write` — for text that viewer reads
+- `Create` — for shapes, lines, arrows
+- `GrowFromCenter` / `GrowFromEdge` — for bars, charts
+- `LaggedStart` — for groups (stagger reveals)
+- `Transform` / `ReplacementTransform` — for morphing
+- `Indicate` / `Circumscribe` / `Flash` — for emphasis
+- `Rotate` — for transformations
+- Camera zoom — for focus moments
 
-## SVG-First Policy
+NEVER use the same animation type twice in a row.
 
-- Use SVG illustrations whenever the concept can be represented visually
-- Check `assets/manifest.yaml` for available assets before creating primitives
-- Animate SVGs: fade in, scale up, slide in
-- Match SVG colors to brand palette with `.set_color()`
+### Engagement Techniques (Use 3+ Per Video)
+- Counter animations (number scaling up with FadeIn)
+- Comparison layouts (before/after, side-by-side)
+- Bar charts growing with `GrowFromEdge`
+- Dot/grid spreading patterns
+- Interactive questions ("What do you think?")
+- Quote cards with background boxes
+- Emphasis with `Indicate()`, `Circumscribe()`, `Flash()`
+- Scale comparisons (objects next to each other for size)
 
-## What NOT to Do
+### Custom Objects (Build Rich Visuals)
+- Buildings with windows (Rectangle + grid of small rectangles)
+- Earth/Moon/planets (Circle with fill and label)
+- Distance diagrams (BraceBetweenPoints + label)
+- Growing bar charts (Rectangle + GrowFromEdge)
+- Spreading dots (for growth/virus visualization)
+- Paper fold (Rectangle that stretches vertically)
 
-- Don't create "slide deck" animations (static text + bullet points)
-- Don't show a wall of code all at once — reveal progressively
-- Don't use Manim default colors/fonts — always use brand styles
-- Don't leave objects on screen after they're discussed
-- Don't animate everything at the same speed — vary for emphasis
-- Don't use primitive circles/squares when an SVG would be clearer
+### Camera
+- Use `MovingCameraScene` for camera control
+- Widen frame for Earth-Moon scale shots: `self.camera.frame.animate.set_width(16)`
+- Save/restore state: `self.camera.frame.save_state()` / `Restore(self.camera.frame)`
+- Never move camera without purpose
 
-## Viewer Retention Visual Rules
+### Transitions
+- `FadeOut(*self.mobjects)` between major sections
+- Within a section: remove objects individually before adding new ones
+- Never cut abruptly — always animate out before in
 
-- First 5 seconds must have motion
-- Change something visual every 3-5 seconds
-- Build complexity gradually (simple → detailed)
-- End scenes on a visual "question" the next scene answers
+## Known Manim CE Bugs
+- `GrowArrow` is BROKEN (TypeError: scale_tips) — use `Create()` for arrows
+- `Integer` / `MathTex` require LaTeX installed — use `Text()` with formatted strings
+- `Cross()` sometimes triggers LaTeX — use two diagonal Lines instead
 
 ## Pre-Render Checklist
-
-Before committing a scene:
-- [ ] Every object has entrance + exit animation
+- [ ] Dark background, not flat color
+- [ ] Multiple visual layers per frame
+- [ ] 7+ different animation types used
 - [ ] No static frames > 3 seconds
-- [ ] Brand colors used consistently
-- [ ] Text readable (font size, contrast, screen time)
-- [ ] SVGs used where appropriate
-- [ ] Camera movement serves a purpose
-- [ ] Pacing matches narration timing
+- [ ] Section titles present
+- [ ] Colors from brand palette
+- [ ] At least 3 engagement techniques used
+- [ ] Camera movement where appropriate
+- [ ] Each voiceover block has corresponding animations filling the time
 
 ## File References
-
-- #[[file:ANIMATION_GUIDE.md]] — Detailed guide (extended reference)
-- #[[file:studio/styles.py]] — Brand colors, fonts, timing constants
-- #[[file:studio/base.py]] — StudioScene base class
+- #[[file:.kiro/steering/youtube-strategy.md]] — Content strategy
+- #[[file:.kiro/steering/production-workflow.md]] — Production workflow
