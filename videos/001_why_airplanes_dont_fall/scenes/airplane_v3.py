@@ -246,18 +246,12 @@ class WhyAirplanesFlyV3(VoiceoverScene, MovingCameraScene):
                 self.play(FadeIn(sec_title.subtitle, shift=UP * 0.1), run_time=0.3)
 
             # Big number counter animation
-            tons_num = Integer(0, font_size=96, color=GOLD)
+            tons_num = Text("400", font_size=96, color=GOLD, weight=BOLD)
             tons_label = Text("TONS", font_size=44, color=SOFT_WHT, weight=BOLD)
             tons_label.next_to(tons_num, RIGHT, buff=0.3)
             tons_grp = VGroup(tons_num, tons_label).move_to(UP * 0.3)
-            tons_label.add_updater(lambda m: m.next_to(tons_num, RIGHT, buff=0.3))
 
-            self.play(FadeIn(tons_grp, scale=0.8), run_time=0.3)
-            self.play(
-                ChangeDecimalToValue(tons_num, 400),
-                run_time=1.5,
-                rate_func=rush_into,
-            )
+            self.play(FadeIn(tons_grp, scale=1.8), run_time=0.8)
 
             # Elephants line
             elephants = Text("= 80 elephants", font_size=32, color=MUTED, slant=ITALIC)
@@ -293,17 +287,13 @@ class WhyAirplanesFlyV3(VoiceoverScene, MovingCameraScene):
             )
 
             # Counter for planes
-            planes_num = Integer(0, font_size=80, color=CORAL)
+            planes_num = Text("10,000", font_size=80, color=CORAL, weight=BOLD)
             planes_label = Text("PLANES IN THE SKY", font_size=28, color=SOFT_WHT)
             planes_label.next_to(planes_num, DOWN, buff=0.3)
             planes_grp = VGroup(planes_num, planes_label).move_to(UP * 0.5)
 
-            self.play(GrowFromCenter(planes_grp), run_time=0.4)
-            self.play(
-                ChangeDecimalToValue(planes_num, 10000),
-                run_time=2.0,
-                rate_func=rush_into,
-            )
+            self.play(GrowFromCenter(planes_grp), run_time=0.6)
+            self.play(Indicate(planes_num, scale_factor=1.1, color=GOLD), run_time=0.5)
 
             # Question
             question = Text(
@@ -824,12 +814,15 @@ class WhyAirplanesFlyV3(VoiceoverScene, MovingCameraScene):
             self.show_subtitle("FACT: Air on top arrives FIRST. No law requires equal time.")
 
             # Cross it out
-            cross = Cross(
-                VGroup(myth_quote, quote_box),
-                color=CORAL,
-                stroke_width=5,
+            cross_l1 = Line(
+                quote_box.get_corner(UL), quote_box.get_corner(DR),
+                color=CORAL, stroke_width=5,
             )
-            self.play(Create(cross), run_time=0.5)
+            cross_l2 = Line(
+                quote_box.get_corner(DL), quote_box.get_corner(UR),
+                color=CORAL, stroke_width=5,
+            )
+            self.play(Create(cross_l1), Create(cross_l2), run_time=0.5)
 
             wrong_stamp = Text("WRONG", font_size=52, color=CORAL, weight=BOLD)
             wrong_stamp.next_to(myth_quote, DOWN, buff=0.7)
@@ -851,7 +844,8 @@ class WhyAirplanesFlyV3(VoiceoverScene, MovingCameraScene):
                     sec_title,
                     myth_quote,
                     quote_box,
-                    cross,
+                    cross_l1,
+                    cross_l2,
                     wrong_stamp,
                 ),
                 run_time=0.3,
