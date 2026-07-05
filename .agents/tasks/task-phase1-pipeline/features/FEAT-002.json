@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Build the complete Phase 1 production pipeline: produce.py CLI entry point and all pipeline stages (research, script, storyboard, animation_plan, manim_code, voice, subtitles, render, export). Each stage is a separate module in pipeline/stages/, reads the previous stage's output, writes to the video folder, and supports independent re-running. Includes LLM abstraction, progress tracking (status.yaml), input/output validation, and clear error handling.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "Create produce.py at repo root as the main CLI entry point. It should accept: python produce.py 'Topic Name' for full pipeline, python produce.py --from <stage> for resuming, python produce.py --only <stage> for single stage. It determines or creates the video folder (videos/NNN_slug/), reads status.yaml to know what is done, and runs stages sequentially.",
     "Create pipeline/stages/__init__.py that exports the stage registry: an ordered list of stage names and their runner functions.",
