@@ -2,7 +2,7 @@
   "task_id": "task-phase1-pipeline",
   "task_description": "Build the Phase 1 production pipeline: a produce.py CLI that orchestrates Topic -> Research -> Script -> Storyboard -> Animation Plan -> Manim Code -> Voice -> Subtitles -> Render -> Export, with modular stages, progress tracking, LLM abstraction, and support for resuming/rerunning individual stages.",
   "status": "in_progress",
-  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004"],
   "blocked_reason": null,
   "verification": {
     "build": "pass",

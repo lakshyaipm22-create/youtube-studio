@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "fix",
   "description": "Address review feedback: remove dead expected_outputs mutation in voice stage, fix substring folder matching in produce.py, add clarifying comment to render stage empty expected_outputs.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Remove the dead `self.expected_outputs = [\"voice/voiceover.mp3\"]` line in pipeline/stages/voice.py since the custom validate_output() handles both extensions already.",
     "In produce.py, fix find_video_folder to strip the numeric prefix and compare the full slug exactly instead of using substring containment.",
@@ -24,5 +24,5 @@
     "pytest tests/ -v"
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "All three review issues fixed cleanly. No test changes needed since existing tests cover the affected code paths. 60 tests still pass."
 }
