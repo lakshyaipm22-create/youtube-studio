@@ -21,13 +21,11 @@ Output:
 import argparse
 import glob
 import subprocess
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = ROOT / "output"
 ASSETS_DIR = ROOT / "assets"
-
 
 
 def find_rendered_scenes(video_name: str) -> list[Path]:
@@ -43,10 +41,7 @@ def find_rendered_scenes(video_name: str) -> list[Path]:
         mp4_files.extend(glob.glob(pattern, recursive=True))
 
     # Filter out any 'final' or 'partial' exports
-    scene_files = [
-        Path(f) for f in sorted(mp4_files)
-        if "final" not in f and "partial" not in f
-    ]
+    scene_files = [Path(f) for f in sorted(mp4_files) if "final" not in f and "partial" not in f]
     return scene_files
 
 
@@ -55,6 +50,7 @@ def concat_scenes(scene_files: list[Path], output_path: Path) -> bool:
     if len(scene_files) == 1:
         # Single scene — just copy
         import shutil
+
         shutil.copy2(scene_files[0], output_path)
         return True
 
@@ -65,10 +61,16 @@ def concat_scenes(scene_files: list[Path], output_path: Path) -> bool:
             f.write(f"file '{scene_file}'\n")
 
     cmd = [
-        "ffmpeg", "-y",
-        "-f", "concat", "-safe", "0",
-        "-i", str(concat_list),
-        "-c", "copy",
+        "ffmpeg",
+        "-y",
+        "-f",
+        "concat",
+        "-safe",
+        "0",
+        "-i",
+        str(concat_list),
+        "-c",
+        "copy",
         str(output_path),
     ]
 
@@ -78,25 +80,30 @@ def concat_scenes(scene_files: list[Path], output_path: Path) -> bool:
     return result.returncode == 0
 
 
-
-def mix_audio(voiceover_path: Path, music_path: Path | None,
-              output_path: Path, music_volume: float = 0.12) -> bool:
+def mix_audio(
+    voiceover_path: Path, music_path: Path | None, output_path: Path, music_volume: float = 0.12
+) -> bool:
     """Mix voiceover with background music using FFmpeg."""
     if music_path is None or not music_path.exists():
         # No music — just copy voiceover
         import shutil
+
         shutil.copy2(voiceover_path, output_path)
         return True
 
     cmd = [
-        "ffmpeg", "-y",
-        "-i", str(voiceover_path),
-        "-i", str(music_path),
+        "ffmpeg",
+        "-y",
+        "-i",
+        str(voiceover_path),
+        "-i",
+        str(music_path),
         "-filter_complex",
         f"[1:a]volume={music_volume},aloop=loop=-1:size=2e+09[bg];"
         f"[bg]atrim=0=duration=9999[bgt];"
         f"[0:a][bgt]amix=inputs=2:duration=first:dropout_transition=2",
-        "-c:a", "pcm_s16le",
+        "-c:a",
+        "pcm_s16le",
         str(output_path),
     ]
 
@@ -104,49 +111,60 @@ def mix_audio(voiceover_path: Path, music_path: Path | None,
     return result.returncode == 0
 
 
-def combine_video_audio(video_path: Path, audio_path: Path,
-                        output_path: Path, srt_path: Path | None = None) -> bool:
+def combine_video_audio(
+    video_path: Path, audio_path: Path, output_path: Path, srt_path: Path | None = None
+) -> bool:
     """Combine video with audio, optionally burning subtitles."""
     cmd = [
-        "ffmpeg", "-y",
-        "-i", str(video_path),
-        "-i", str(audio_path),
+        "ffmpeg",
+        "-y",
+        "-i",
+        str(video_path),
+        "-i",
+        str(audio_path),
     ]
 
     # Video filter (burn subtitles if requested)
     if srt_path and srt_path.exists():
         # Escape path for FFmpeg subtitle filter
         srt_escaped = str(srt_path).replace("\\", "/").replace(":", "\\:")
-        cmd.extend([
-            "-vf", f"subtitles='{srt_escaped}':force_style='FontSize=22,FontName=Inter'"
-        ])
+        cmd.extend(["-vf", f"subtitles='{srt_escaped}':force_style='FontSize=22,FontName=Inter'"])
         cmd.extend(["-c:v", "libx264", "-preset", "slow", "-crf", "18"])
     else:
         cmd.extend(["-c:v", "copy"])
 
-    cmd.extend([
-        "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
-        "-pix_fmt", "yuv420p",
-        "-movflags", "+faststart",
-        str(output_path),
-    ])
+    cmd.extend(
+        [
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            "-ar",
+            "48000",
+            "-pix_fmt",
+            "yuv420p",
+            "-movflags",
+            "+faststart",
+            str(output_path),
+        ]
+    )
 
     result = subprocess.run(cmd, capture_output=True, text=True)
     return result.returncode == 0
 
 
-
 def main():
     parser = argparse.ArgumentParser(description="Export final YouTube-ready video")
     parser.add_argument("video", help="Video folder name (e.g., 001_what_is_python)")
-    parser.add_argument("--music", default=None,
-                        help="Path to background music file")
-    parser.add_argument("--no-music", action="store_true",
-                        help="Skip background music")
-    parser.add_argument("--burn-subs", action="store_true",
-                        help="Burn subtitles into video")
-    parser.add_argument("--music-volume", type=float, default=0.12,
-                        help="Background music volume (0.0-1.0, default: 0.12)")
+    parser.add_argument("--music", default=None, help="Path to background music file")
+    parser.add_argument("--no-music", action="store_true", help="Skip background music")
+    parser.add_argument("--burn-subs", action="store_true", help="Burn subtitles into video")
+    parser.add_argument(
+        "--music-volume",
+        type=float,
+        default=0.12,
+        help="Background music volume (0.0-1.0, default: 0.12)",
+    )
 
     args = parser.parse_args()
     video_name = args.video
@@ -203,6 +221,7 @@ def main():
     else:
         # No audio — just copy merged video
         import shutil
+
         shutil.copy2(merged_video, final_output)
 
     # Cleanup intermediate files
@@ -212,7 +231,7 @@ def main():
         mixed_audio.unlink()
 
     print(f"\n✅ Final video: output/{video_name}/final.mp4")
-    print(f"   Ready for YouTube upload!")
+    print("   Ready for YouTube upload!")
     print()
 
 

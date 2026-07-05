@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-001",
+  "type": "chore",
+  "description": "Set up the development environment: create the branch from feat/project-scaffold, install dependencies, verify the project imports correctly and passes linting.",
+  "status": "in_progress",
+  "steps": [
+    "Run: git checkout feat/project-scaffold && git checkout -b feat/phase1-pipeline",
+    "Run: pyenv global 3.12.13 && pip install -e '.[dev]'",
+    "Run: python -c \"import studio; import pipeline; print('OK')\" to verify imports",
+    "Run: ruff check . && ruff format --check . to verify linting passes",
+    "Run: pip install openai pyyaml to add dependencies needed for AI stages (openai for LLM abstraction)"
+  ],
+  "acceptance_criteria": [
+    "Branch feat/phase1-pipeline exists and is checked out, based on feat/project-scaffold",
+    "pip install -e '.[dev]' succeeds",
+    "python -c 'import studio; import pipeline' succeeds",
+    "ruff check . passes with no errors",
+    "ruff format --check . passes with no errors"
+  ],
+  "verification": [
+    "git branch --show-current outputs feat/phase1-pipeline",
+    "python -c 'import studio; import pipeline'",
+    "ruff check .",
+    "ruff format --check ."
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

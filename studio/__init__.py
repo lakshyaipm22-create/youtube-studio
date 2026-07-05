@@ -15,5 +15,5 @@ Only add new modules here after you've copied the same animation
 into 3+ videos. Keep this minimal and intentional.
 """
 
-from studio.styles import *
 from studio.base import StudioScene
+from studio.styles import *

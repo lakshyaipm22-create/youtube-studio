@@ -22,6 +22,7 @@ Usage:
 """
 
 from manim import *
+
 from studio.base import StudioScene
 from studio.styles import *
 
