@@ -1,64 +1,89 @@
-# Animation Quality Standards
+# Animation & Visual Design Standards
 
-This steering file ensures Kiro generates professional-quality Manim animations
-optimized for viewer engagement and retention.
+This file governs how animations are designed and coded.
+It is subordinate to `youtube-strategy.md` — every animation decision serves viewer retention.
 
-## Animator Mindset
+## Core Principle
 
-When generating animations, think like a professional motion graphics designer,
-not a programmer. Prioritize:
+Think like an animator, not a programmer.
+Prioritize viewer engagement over minimizing code.
 
-- Visually appealing motion and smooth transitions
-- Object transformations and morphs over simple fades
-- Camera movement to guide attention
-- Layered animations (multiple things happening with stagger)
-- SVG illustrations from `assets/svg/` over primitive shapes
-- Reusable animation patterns from `studio/`
+## Scene Design Process (Mandatory)
 
-## Scene Generation Process
+Before writing ANY Manim code, complete these steps:
 
-When asked to generate a scene, ALWAYS follow this process:
+1. Define the visual goal — what should the viewer understand?
+2. Decide camera movement — static, zoom, pan, or follow?
+3. Design the animation sequence — what appears, transforms, moves, exits?
+4. Decide object transformations — morph, scale, recolor, reposition?
+5. Plan pacing — match narration rhythm, vary speed for emphasis
+6. Plan transitions — smooth connection to next scene
+7. THEN write Manim code
 
-1. **Define the visual goal.** What should the viewer understand visually?
-2. **Decide camera movement.** Static, zoom, pan, or follow?
-3. **Design the animation sequence.** What appears, transforms, moves, exits?
-4. **Decide object transformations.** Morph, scale, recolor, reposition?
-5. **Plan pacing.** Match narration rhythm. Vary speed for emphasis.
-6. **Plan transitions.** Connect this scene to the next smoothly.
-7. **Then generate Manim code.**
-
-Do NOT jump straight to writing Manim code. Design first.
-
-## Mandatory Rules
+## Visual Rules
 
 - Never leave the screen static for more than 3 seconds
-- Always animate new objects (FadeIn, Write, Create — never just `self.add()`)
-- Always animate object exits (FadeOut, Uncreate — never just `self.remove()`)
+- Always animate entrances (FadeIn, Write, Create — never `self.add()`)
+- Always animate exits (FadeOut, Uncreate — never `self.remove()`)
 - Avoid text-only scenes — always pair text with visuals
-- Use SVG illustrations whenever appropriate
-- Use brand colors from `studio/styles.py` consistently
-- Limit on-screen text to 2 lines maximum at once
-- Use stagger delays (0.2s) when revealing lists or groups
-- Camera movement should serve a purpose (don't move for no reason)
-- Transitions between scenes must be smooth (never abrupt cuts)
+- Use SVG illustrations from `assets/svg/` over primitive shapes
+- Limit on-screen text to 2 lines maximum
+- Use stagger delays (0.2s) when revealing groups
+- Prefer Transform/ReplacementTransform over FadeOut + FadeIn
+- Objects move with purpose (toward related objects, along logical paths)
+- One focal point at a time — don't compete for attention
 
-## Code Standards
+## Camera Rules
 
-- Always inherit from `StudioScene` (from `studio/base.py`)
-- Always import styles: `from studio.styles import *`
-- Use `brand_text()`, `brand_title()`, `brand_code()` — never raw Manim Text()
-- Use timing constants (FADE_NORMAL, PAUSE_MEDIUM) — never magic numbers
-- Use position constants (POS_TITLE, POS_CENTER) — never raw coordinates
-- Use `self.pause_beat()`, `self.pause_medium()` — never raw `self.wait(0.5)`
+- Subtle zoom (1.0 → 1.2) to draw attention
+- Pan to follow sequences or timelines
+- Reset camera before new sections
+- Never move the camera without purpose
+
+## Transition Rules
+
+- Every scene ends with a clear exit animation
+- Default: `self.fade_out_all()`
+- Related scenes: transform key object into next scene's starting point
+- New topics: full fade to dark + brief pause + new entrance
+- Never cut abruptly
+
+## SVG-First Policy
+
+- Use SVG illustrations whenever the concept can be represented visually
+- Check `assets/manifest.yaml` for available assets before creating primitives
+- Animate SVGs: fade in, scale up, slide in
+- Match SVG colors to brand palette with `.set_color()`
+
+## What NOT to Do
+
+- Don't create "slide deck" animations (static text + bullet points)
+- Don't show a wall of code all at once — reveal progressively
+- Don't use Manim default colors/fonts — always use brand styles
+- Don't leave objects on screen after they're discussed
+- Don't animate everything at the same speed — vary for emphasis
+- Don't use primitive circles/squares when an SVG would be clearer
+
+## Viewer Retention Visual Rules
+
+- First 5 seconds must have motion
+- Change something visual every 3-5 seconds
+- Build complexity gradually (simple → detailed)
+- End scenes on a visual "question" the next scene answers
+
+## Pre-Render Checklist
+
+Before committing a scene:
+- [ ] Every object has entrance + exit animation
+- [ ] No static frames > 3 seconds
+- [ ] Brand colors used consistently
+- [ ] Text readable (font size, contrast, screen time)
+- [ ] SVGs used where appropriate
+- [ ] Camera movement serves a purpose
+- [ ] Pacing matches narration timing
 
 ## File References
 
-- #[[file:ANIMATION_GUIDE.md]] — Full animation quality guidelines
+- #[[file:ANIMATION_GUIDE.md]] — Detailed guide (extended reference)
 - #[[file:studio/styles.py]] — Brand colors, fonts, timing constants
 - #[[file:studio/base.py]] — StudioScene base class
-- #[[file:prompts/guidelines.md]] — Brand voice and content rules
-
-## Optimization Target
-
-Optimize every animation decision for **viewer retention**, not code elegance.
-A viewer who stays engaged for 3 minutes is worth more than clean code.
