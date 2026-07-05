@@ -17,6 +17,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "ipython",
+    "ruff>=0.5.0",
+    "pytest>=8.0.0",
 ]
 
 [build-system]
@@ -25,3 +27,32 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["studio*", "pipeline*"]
+
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "F403",   # wildcard imports (used in studio styles)
+    "F405",   # name may be undefined from wildcard import
+]
+
+[tool.ruff.lint.per-file-ignores]
+"videos/**/*.py" = ["F403", "F405", "E402"]  # video scenes use wildcard imports
+"studio/__init__.py" = ["F401", "F403"]       # re-exports
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
