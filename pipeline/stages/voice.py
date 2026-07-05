@@ -47,8 +47,6 @@ class VoiceStage(StageRunner):
 
                 output_path = output_dir / "voiceover.mp3"
                 generate_with_edge_tts(text, output_path)
-                # Update expected output for validation
-                self.expected_outputs = ["voice/voiceover.mp3"]
             except (SystemExit, Exception) as e:
                 logger.error(f"[voice] Both TTS engines failed: {e}")
                 return False
