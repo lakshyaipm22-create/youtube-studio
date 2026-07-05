@@ -1,518 +1,392 @@
 """
-Why Airplanes Don't Fall - Scene Classes
+Video: Why Airplanes Don't Fall
 
-Production-quality Manim scenes using the studio/ library.
-Each scene inherits from StudioScene and uses brand helpers.
+Timing-synchronized scenes. Each scene's total duration matches
+the corresponding narration segment from timing.yaml.
+
+Scene mapping to timing.yaml:
+  Intro         → timing scenes: Intro (12.8s)
+  WindAndWing   → timing scenes: WindAndWing + TheRealExplanationPart1 (36.5s)
+  LiftExplained → timing scenes: LiftExplained + BernoulliJoins (32.3s)
+  MythBust      → timing scenes: MythBust + TheSecretVariable (35.1s)
+  Outro         → timing scenes: Outro (23.3s)
+
+Total target: ~143s (2:23)
 """
 
-from manim import *  # noqa: F403
+from pathlib import Path
+
+from manim import *  # noqa: F403, F405
 
 from studio.base import StudioScene
-from studio.styles import *  # noqa: F403
+from studio.styles import *  # noqa: F403, F405
+from studio.timing import load_timing
+
+# Load timing for this video
+VIDEO_DIR = Path(__file__).resolve().parent.parent
+TIMING = load_timing(VIDEO_DIR)
+
+
+def _scene_dur(*names: str) -> float:
+    """Sum durations of multiple timing scenes."""
+    total = 0.0
+    for name in names:
+        s = TIMING.get_scene(name)
+        if s:
+            total += s.duration
+    return max(total, 5.0)  # minimum 5s safety
 
 
 class Intro(StudioScene):
-    """Opening hook: 400 tons, 80 elephants, and a question."""
+    """Hook: 400 tons, 80 elephants, somehow it flies."""
 
     def construct(self):
-        # Weight reveal
-        weight_num = brand_text("400", font_size=FONT_SIZE_HERO, color=BRAND_LIGHT)
-        weight_unit = brand_text(" TONS", font_size=FONT_SIZE_HERO, color=BRAND_SECONDARY)
-        weight = VGroup(weight_num, weight_unit).arrange(RIGHT, buff=0.1)
-        weight.move_to(UP * 1.5)
+        target = _scene_dur("Intro")
 
-        self.play(FadeIn(weight_num, scale=0.3), run_time=FADE_SLOW)
-        self.pause_beat()
-        self.play(FadeIn(weight_unit, shift=LEFT * 0.5), run_time=FADE_FAST)
-        self.pause_medium()
+        # "400 TONS" scales up
+        tons = brand_text("400", font_size=FONT_SIZE_HERO, color=BRAND_PRIMARY)
+        tons_label = brand_text("TONS", font_size=FONT_SIZE_TITLE, color=BRAND_LIGHT)
+        tons_label.next_to(tons, RIGHT, buff=0.3)
+        tons_group = VGroup(tons, tons_label).move_to(UP * 1.0)
 
-        # Elephant comparison
-        elephants_text = brand_text(
-            "= 80 elephants", font_size=FONT_SIZE_SUBTITLE, color=BRAND_MUTED
+        self.play(FadeIn(tons, scale=1.5), run_time=1.0)
+        self.play(FadeIn(tons_label, shift=RIGHT * 0.3), run_time=0.5)
+        self.wait(1.5)
+
+        # "= 80 elephants"
+        elephants = brand_text(
+            "= 80 elephants", font_size=FONT_SIZE_BODY, color=BRAND_MUTED
         )
-        elephants_text.next_to(weight, DOWN, buff=0.6)
-        self.play(FadeIn(elephants_text, shift=UP * 0.3), run_time=FADE_NORMAL)
-        self.pause_medium()
+        elephants.next_to(tons_group, DOWN, buff=0.5)
+        self.play(FadeIn(elephants, shift=UP * 0.2), run_time=0.8)
+        self.wait(1.0)
 
-        # Transform to plane shape
-        plane_text = brand_text(
-            "And somehow... it flies.",
-            font_size=FONT_SIZE_BODY,
-            color=BRAND_LIGHT,
+        # "And somehow... it flies"
+        flies = brand_text(
+            "And somehow... it flies.", font_size=FONT_SIZE_SUBTITLE, color=BRAND_ACCENT
         )
-        plane_text.next_to(elephants_text, DOWN, buff=0.6)
-        self.play(Write(plane_text), run_time=WRITE_SPEED)
-        self.pause_medium()
+        flies.move_to(DOWN * 1.5)
+        self.play(Write(flies), run_time=1.2)
+        self.wait(1.5)
 
-        # The big question
+        # "How?"
         self.fade_out_all()
         self.pause_beat()
-
         how = brand_text("How?", font_size=FONT_SIZE_HERO, color=BRAND_PRIMARY)
-        how.move_to(POS_CENTER)
-        self.play(FadeIn(how, scale=1.5), run_time=FADE_SLOW)
-        self.pause_medium()
+        self.play(FadeIn(how, scale=1.5), run_time=0.8)
+
+        # Pad remaining time
+        elapsed = 1.0 + 0.5 + 1.5 + 0.8 + 1.0 + 1.2 + 1.5 + FADE_NORMAL + PAUSE_BEAT + 0.8
+        remaining = target - elapsed
+        if remaining > 0:
+            self.wait(remaining)
+
         self.fade_out_all()
 
 
 class WindAndWing(StudioScene):
-    """Debunk the textbook myth, then explain via hand-out-window analogy."""
+    """Debunk the myth + hand-out-window analogy."""
 
     def construct(self):
-        self._show_wrong_answer()
-        self._show_hand_analogy()
+        target = _scene_dur("WindAndWing", "TheRealExplanationPart1")
 
-    def _show_wrong_answer(self):
-        """Part 1: Show and debunk the equal transit time myth."""
+        # Part 1: The wrong textbook answer
         title = self.make_title("What Your Teacher Said")
         self.play(Write(title), run_time=WRITE_SPEED)
-        self.pause_beat()
+        self.wait(1.0)
 
         # Wing cross-section
         wing = Ellipse(width=5, height=1.0, color=BRAND_LIGHT, stroke_width=2)
         wing.set_fill(BRAND_DARK, opacity=0.5)
         wing.move_to(POS_CENTER)
-        self.play(Create(wing), run_time=FADE_NORMAL)
-        self.pause_beat()
+        self.play(Create(wing), run_time=1.0)
+        self.wait(2.0)
 
-        # Curved top arrow (longer path)
-        top_arrow = CurvedArrow(
-            LEFT * 2.5 + UP * 0.8,
-            RIGHT * 2.5 + UP * 0.3,
-            angle=-0.4,
-            color=BRAND_PRIMARY,
-        )
-        self.play(Create(top_arrow), run_time=FADE_NORMAL)
-        self.pause_beat()
+        # Arrows showing airflow
+        top_path = Arc(radius=2.5, start_angle=PI * 0.8, angle=-PI * 0.6, color=BRAND_PRIMARY)
+        top_path.shift(UP * 0.3)
+        self.play(Create(top_path), run_time=1.5)
+        self.wait(1.5)
 
-        # Straight bottom arrow
-        bot_arrow = Arrow(
-            LEFT * 2.5 + DOWN * 0.6,
-            RIGHT * 2.5 + DOWN * 0.3,
-            color=BRAND_MUTED,
-            stroke_width=2,
-        )
-        self.play(Create(bot_arrow), run_time=FADE_NORMAL)
-        self.pause_short()
-
-        # Label
-        longer_label = brand_text(
-            "Longer path = faster?", font_size=FONT_SIZE_CAPTION, color=BRAND_MUTED
-        )
-        longer_label.next_to(top_arrow, UP, buff=0.2)
-        self.play(FadeIn(longer_label), run_time=FADE_FAST)
-        self.pause_medium()
+        bot_line = Line(LEFT * 2.5 + DOWN * 0.5, RIGHT * 2.5 + DOWN * 0.3, color=BRAND_MUTED)
+        self.play(Create(bot_line), run_time=0.8)
+        self.wait(2.0)
 
         # WRONG stamp
         wrong = brand_text("WRONG", font_size=FONT_SIZE_HERO, color=BRAND_ERROR)
-        wrong.move_to(POS_CENTER)
         wrong.rotate(PI / 12)
-        self.play(FadeIn(wrong, scale=2.0), run_time=FADE_FAST)
-        self.pause_medium()
+        self.play(FadeIn(wrong, scale=2.0), run_time=0.5)
+        self.wait(2.0)
 
         self.fade_out_all()
-        self.pause_beat()
+        self.wait(1.0)
 
-    def _show_hand_analogy(self):
-        """Part 2: The hand-out-the-car-window analogy."""
-        title = self.make_title("The Car Window Test")
-        self.play(Write(title), run_time=WRITE_SPEED)
-        self.pause_beat()
+        # Part 2: Hand out car window
+        title2 = self.make_title("The Car Window Test")
+        self.play(Write(title2), run_time=WRITE_SPEED)
+        self.wait(1.0)
 
-        # Hand (flat rectangle)
+        # Hand (rectangle)
         hand = Rectangle(width=2.5, height=0.25, color=BRAND_LIGHT, stroke_width=2)
         hand.set_fill(BRAND_LIGHT, opacity=0.7)
-        hand.move_to(POS_CENTER)
-        self.play(FadeIn(hand), run_time=FADE_NORMAL)
-        self.pause_short()
+        self.play(FadeIn(hand), run_time=0.5)
+        self.wait(1.5)
 
-        # Wind streaks (show motion context)
-        wind_lines = VGroup(
+        # Wind lines
+        wind = VGroup(
             *[
-                Line(
-                    LEFT * 5 + UP * (i * 0.4 - 0.8),
-                    LEFT * 3.5 + UP * (i * 0.4 - 0.8),
-                    color=BRAND_MUTED,
-                    stroke_width=1,
-                    stroke_opacity=0.5,
-                )
+                Line(LEFT * 4 + UP * (i * 0.3 - 0.6), LEFT * 2.5 + UP * (i * 0.3 - 0.6),
+                     color=BRAND_MUTED, stroke_width=1, stroke_opacity=0.5)
                 for i in range(5)
             ]
         )
-        self.play(Create(wind_lines), run_time=FADE_FAST)
-        self.pause_beat()
+        self.play(Create(wind), run_time=0.5)
+        self.wait(1.0)
 
-        # Tilt the hand
-        self.play(Rotate(hand, angle=PI / 12), run_time=FADE_NORMAL)
-        self.pause_beat()
+        # Tilt hand
+        self.play(Rotate(hand, angle=PI / 12), run_time=0.8)
+        self.wait(1.5)
 
-        # Air deflection arrows going down
-        air_down = VGroup(
-            *[
-                Arrow(
-                    hand.get_center() + RIGHT * (i - 1) * 0.8 + DOWN * 0.2,
-                    hand.get_center() + RIGHT * (i - 1) * 0.8 + DOWN * 1.8,
-                    color=BRAND_MUTED,
-                    stroke_width=2,
-                    max_tip_length_to_length_ratio=0.2,
-                )
-                for i in range(4)
-            ]
-        )
-        self.play(
-            *[Create(a) for a in air_down],
-            run_time=FADE_NORMAL,
-        )
-        self.pause_beat()
-
-        # Lift arrow going up
-        lift_arrow = Arrow(
-            hand.get_center() + DOWN * 0.2,
-            hand.get_center() + UP * 2.2,
-            color=BRAND_ACCENT,
-            stroke_width=5,
-            max_tip_length_to_length_ratio=0.15,
-        )
+        # Lift arrow
+        lift = Arrow(hand.get_center(), hand.get_center() + UP * 2, color=BRAND_ACCENT,
+                     stroke_width=4)
         lift_label = brand_text("LIFT", font_size=FONT_SIZE_BODY, color=BRAND_ACCENT)
-        lift_label.next_to(lift_arrow, RIGHT, buff=0.2)
+        lift_label.next_to(lift, RIGHT, buff=0.2)
+        self.play(Create(lift), run_time=0.8)
+        self.play(FadeIn(lift_label), run_time=0.3)
+        self.wait(2.0)
 
-        self.play(Create(lift_arrow), run_time=FADE_NORMAL)
-        self.play(FadeIn(lift_label, shift=LEFT * 0.2), run_time=FADE_FAST)
-        self.pause_medium()
+        # "You just created lift"
+        reveal = brand_text("You just created lift.", font_size=FONT_SIZE_SUBTITLE,
+                            color=BRAND_LIGHT)
+        reveal.move_to(DOWN * 2.5)
+        self.play(Write(reveal), run_time=1.0)
 
-        # Reveal text
-        reveal = brand_text(
-            "You just created lift.", font_size=FONT_SIZE_SUBTITLE, color=BRAND_LIGHT
-        )
-        reveal.move_to(POS_FOOTER)
-        self.play(Write(reveal), run_time=WRITE_SPEED)
-        self.pause_medium()
+        # Pad to target
+        elapsed = (WRITE_SPEED + 1.0 + 1.0 + 2.0 + 1.5 + 1.5 + 0.8 + 2.0 + 0.5 + 2.0 +
+                   FADE_NORMAL + 1.0 + WRITE_SPEED + 1.0 + 0.5 + 1.5 + 0.5 + 1.0 + 0.8 +
+                   1.5 + 0.8 + 0.3 + 2.0 + 1.0)
+        remaining = target - elapsed
+        if remaining > 0:
+            self.wait(remaining)
 
         self.fade_out_all()
 
 
 class LiftExplained(StudioScene):
-    """Newton's third law AND Bernoulli's principle - the real answer is both."""
+    """Newton's third law + Bernoulli's principle = the real answer."""
 
     def construct(self):
-        self._show_newton()
-        self._show_bernoulli()
-        self._merge_both()
+        target = _scene_dur("LiftExplained", "BernoulliJoins")
 
-    def _show_newton(self):
-        """Newton's third law explanation."""
+        # Newton's Third Law
         title = self.make_title("Newton's Third Law")
         self.play(Write(title), run_time=WRITE_SPEED)
-        self.pause_beat()
+        self.wait(1.5)
 
-        # Wing shape
-        wing = Polygon(
-            LEFT * 2.5,
-            RIGHT * 2.5 + UP * 0.1,
-            RIGHT * 2.5 + DOWN * 0.1,
-            LEFT * 2.5 + DOWN * 0.3,
-            color=BRAND_LIGHT,
-            stroke_width=2,
+        # Wing pushing air down
+        wing = Ellipse(width=4, height=0.6, color=BRAND_LIGHT, stroke_width=2)
+        wing.move_to(ORIGIN)
+        self.play(Create(wing), run_time=0.8)
+        self.wait(1.0)
+
+        # Down arrows (action)
+        down_arrows = VGroup(
+            *[Arrow(wing.get_center() + RIGHT * (i - 1.5) * 1.0,
+                    wing.get_center() + DOWN * 2 + RIGHT * (i - 1.5) * 1.0,
+                    color=BRAND_PRIMARY, stroke_width=2)
+              for i in range(4)]
         )
-        wing.set_fill(BRAND_LIGHT, opacity=0.3)
-        wing.move_to(POS_CENTER)
-        self.play(Create(wing), run_time=FADE_NORMAL)
-        self.pause_beat()
+        action_label = brand_text("Action", font_size=FONT_SIZE_CAPTION, color=BRAND_PRIMARY)
+        action_label.next_to(down_arrows, DOWN, buff=0.2)
+        self.play(*[Create(a) for a in down_arrows], run_time=1.0)
+        self.play(FadeIn(action_label), run_time=0.3)
+        self.wait(2.0)
 
-        # Air pushed DOWN arrows
-        air_down_arrows = VGroup(
-            *[
-                Arrow(
-                    wing.get_center() + RIGHT * (i - 1.5) * 1.2 + DOWN * 0.3,
-                    wing.get_center() + RIGHT * (i - 1.5) * 1.2 + DOWN * 2.0,
-                    color=BRAND_PRIMARY,
-                    stroke_width=3,
-                )
-                for i in range(4)
-            ]
-        )
-        action_label = brand_text("Action: air DOWN", font_size=FONT_SIZE_CAPTION)
-        action_label.next_to(air_down_arrows, DOWN, buff=0.2)
-
-        self.play(
-            *[Create(a) for a in air_down_arrows],
-            run_time=FADE_NORMAL,
-        )
-        self.play(FadeIn(action_label), run_time=FADE_FAST)
-        self.pause_beat()
-
-        # Reaction: wing pushed UP
-        lift_arrow = Arrow(
-            wing.get_center() + UP * 0.2,
-            wing.get_center() + UP * 2.5,
-            color=BRAND_ACCENT,
-            stroke_width=5,
-        )
-        reaction_label = brand_text(
-            "Reaction: wing UP", font_size=FONT_SIZE_CAPTION, color=BRAND_ACCENT
-        )
-        reaction_label.next_to(lift_arrow, RIGHT, buff=0.2)
-
-        self.play(Create(lift_arrow), run_time=FADE_NORMAL)
-        self.play(FadeIn(reaction_label), run_time=FADE_FAST)
-        self.pause_medium()
-
-        # Pulse the lift arrow for emphasis
-        self.play(
-            lift_arrow.animate.scale(1.2),
-            run_time=FADE_FAST,
-        )
-        self.play(
-            lift_arrow.animate.scale(1 / 1.2),
-            run_time=FADE_FAST,
-        )
-        self.pause_short()
-        self.fade_out_all()
-
-    def _show_bernoulli(self):
-        """Bernoulli's principle explanation."""
-        title = self.make_title("Bernoulli's Principle")
-        self.play(Write(title), run_time=WRITE_SPEED)
-        self.pause_beat()
-
-        # Wing with pressure zones
-        wing = Ellipse(width=5, height=1.2, color=BRAND_LIGHT, stroke_width=2)
-        wing.set_fill(BRAND_DARK, opacity=0.5)
-        wing.move_to(POS_CENTER)
-        self.play(Create(wing), run_time=FADE_NORMAL)
-        self.pause_beat()
-
-        # Low pressure zone above (blue)
-        low_p = Rectangle(width=4.5, height=1.2, color=BRAND_PRIMARY, stroke_width=0)
-        low_p.set_fill(BRAND_PRIMARY, opacity=0.2)
-        low_p.next_to(wing, UP, buff=0.0)
-        low_label = brand_text("LOW pressure", font_size=FONT_SIZE_CAPTION, color=BRAND_PRIMARY)
-        low_label.next_to(low_p, UP, buff=0.1)
-
-        self.play(FadeIn(low_p), run_time=FADE_NORMAL)
-        self.play(FadeIn(low_label), run_time=FADE_FAST)
-        self.pause_beat()
-
-        # High pressure zone below (red/warm)
-        high_p = Rectangle(width=4.5, height=1.0, color=BRAND_SECONDARY, stroke_width=0)
-        high_p.set_fill(BRAND_SECONDARY, opacity=0.2)
-        high_p.next_to(wing, DOWN, buff=0.0)
-        high_label = brand_text("HIGH pressure", font_size=FONT_SIZE_CAPTION, color=BRAND_SECONDARY)
-        high_label.next_to(high_p, DOWN, buff=0.1)
-
-        self.play(FadeIn(high_p), run_time=FADE_NORMAL)
-        self.play(FadeIn(high_label), run_time=FADE_FAST)
-        self.pause_medium()
+        # Up arrow (reaction)
+        up_arrow = Arrow(wing.get_center() + DOWN * 0.3, wing.get_center() + UP * 2.5,
+                         color=BRAND_ACCENT, stroke_width=5)
+        reaction_label = brand_text("Reaction = LIFT", font_size=FONT_SIZE_CAPTION,
+                                    color=BRAND_ACCENT)
+        reaction_label.next_to(up_arrow, RIGHT, buff=0.2)
+        self.play(Create(up_arrow), run_time=1.0)
+        self.play(FadeIn(reaction_label), run_time=0.3)
+        self.wait(3.0)
 
         self.fade_out_all()
+        self.wait(1.0)
 
-    def _merge_both(self):
-        """Combine Newton and Bernoulli into unified explanation."""
-        # Newton side
-        newton_title = brand_text("Newton", font_size=FONT_SIZE_TITLE, color=BRAND_PRIMARY)
-        newton_title.move_to(UP * 2.5 + LEFT * 3)
+        # Bernoulli's principle
+        title2 = self.make_title("But That's Only Half")
+        self.play(Write(title2), run_time=WRITE_SPEED)
+        self.wait(1.5)
 
-        newton_arrow = Arrow(ORIGIN, DOWN * 1.5, color=BRAND_PRIMARY, stroke_width=3)
-        newton_arrow.move_to(LEFT * 3 + DOWN * 0.3)
+        # Airfoil with pressure zones
+        wing2 = Ellipse(width=5, height=1.2, color=BRAND_LIGHT, stroke_width=2)
+        wing2.move_to(ORIGIN)
+        self.play(Create(wing2), run_time=0.8)
+        self.wait(1.0)
 
-        self.play(Write(newton_title), run_time=WRITE_SPEED)
-        self.play(Create(newton_arrow), run_time=FADE_NORMAL)
-        self.pause_beat()
+        # Low pressure label on top
+        low_p = brand_text("Low pressure", font_size=FONT_SIZE_CAPTION, color=BRAND_ACCENT)
+        low_p.next_to(wing2, UP, buff=0.5)
+        high_p = brand_text("High pressure", font_size=FONT_SIZE_CAPTION, color=BRAND_SECONDARY)
+        high_p.next_to(wing2, DOWN, buff=0.5)
+        self.play(FadeIn(low_p, shift=DOWN * 0.2), run_time=0.5)
+        self.play(FadeIn(high_p, shift=UP * 0.2), run_time=0.5)
+        self.wait(2.5)
 
-        # Bernoulli side
-        bern_title = brand_text("Bernoulli", font_size=FONT_SIZE_TITLE, color=BRAND_SECONDARY)
-        bern_title.move_to(UP * 2.5 + RIGHT * 3)
+        # "Pressure difference pushes wing up"
+        explanation = brand_text("Pressure difference → net upward force",
+                                 font_size=FONT_SIZE_BODY, color=BRAND_LIGHT)
+        explanation.move_to(DOWN * 2.5)
+        self.play(Write(explanation), run_time=1.2)
+        self.wait(2.0)
 
-        bern_arrow = Arrow(ORIGIN, UP * 1.5, color=BRAND_SECONDARY, stroke_width=3)
-        bern_arrow.move_to(RIGHT * 3 + DOWN * 0.3)
-
-        self.play(Write(bern_title), run_time=WRITE_SPEED)
-        self.play(Create(bern_arrow), run_time=FADE_NORMAL)
-        self.pause_medium()
-
-        # Plus sign
-        plus = brand_text("+", font_size=FONT_SIZE_HERO, color=BRAND_ACCENT)
-        plus.move_to(POS_CENTER + UP * 0.5)
-        self.play(FadeIn(plus, scale=2.0), run_time=FADE_NORMAL)
-        self.pause_beat()
-
-        # The answer
+        # "Both Newton AND Bernoulli"
         self.fade_out_all()
         self.pause_beat()
+        both = brand_text("The answer: BOTH", font_size=FONT_SIZE_TITLE, color=BRAND_ACCENT)
+        self.play(FadeIn(both, scale=1.2), run_time=0.8)
 
-        answer = brand_text(
-            "The real answer: BOTH",
-            font_size=FONT_SIZE_HERO,
-            color=BRAND_PRIMARY,
-        )
-        answer.move_to(POS_CENTER)
-        self.play(FadeIn(answer, scale=0.5), run_time=FADE_SLOW)
-        self.pause_long()
+        # Pad
+        elapsed = (WRITE_SPEED + 1.5 + 0.8 + 1.0 + 1.0 + 0.3 + 2.0 + 1.0 + 0.3 + 3.0 +
+                   FADE_NORMAL + 1.0 + WRITE_SPEED + 1.5 + 0.8 + 1.0 + 0.5 + 0.5 + 2.5 +
+                   1.2 + 2.0 + FADE_NORMAL + PAUSE_BEAT + 0.8)
+        remaining = target - elapsed
+        if remaining > 0:
+            self.wait(remaining)
+
         self.fade_out_all()
 
 
 class MythBust(StudioScene):
-    """Debunk equal transit time and show angle of attack / stall."""
+    """Debunk equal transit time + reveal angle of attack."""
 
     def construct(self):
-        self._debunk_transit_time()
-        self._show_angle_of_attack()
+        target = _scene_dur("MythBust", "TheSecretVariable")
 
-    def _debunk_transit_time(self):
-        """Show that equal transit time is wrong."""
-        title = self.make_title("The Myth")
+        # The myth
+        title = self.make_title("The Biggest Myth")
         self.play(Write(title), run_time=WRITE_SPEED)
-        self.pause_beat()
+        self.wait(1.5)
 
-        # The myth text
         myth_text = brand_text(
-            "Equal Transit Time",
-            font_size=FONT_SIZE_SUBTITLE,
-            color=BRAND_MUTED,
+            '"Air on top must arrive at the same time"',
+            font_size=FONT_SIZE_BODY, color=BRAND_MUTED
         )
-        myth_text.move_to(POS_CENTER + UP * 0.5)
-        self.play(Write(myth_text), run_time=WRITE_SPEED)
-        self.pause_short()
+        myth_text.move_to(ORIGIN)
+        self.play(Write(myth_text), run_time=1.5)
+        self.wait(2.5)
 
-        # Explanation
-        explanation = brand_text(
-            "Air splits and meets at the back at the same time",
-            font_size=FONT_SIZE_CAPTION,
-            color=BRAND_MUTED,
-        )
-        explanation.next_to(myth_text, DOWN, buff=0.4)
-        self.play(FadeIn(explanation, shift=UP * 0.2), run_time=FADE_NORMAL)
-        self.pause_medium()
+        # Cross it out
+        cross = Line(myth_text.get_left(), myth_text.get_right(),
+                     color=BRAND_ERROR, stroke_width=4)
+        self.play(Create(cross), run_time=0.5)
+        self.wait(1.5)
 
-        # Strikethrough
-        strike_line = Line(
-            myth_text.get_left() + LEFT * 0.2,
-            myth_text.get_right() + RIGHT * 0.2,
-            color=BRAND_ERROR,
-            stroke_width=4,
-        )
-        self.play(Create(strike_line), run_time=FADE_NORMAL)
-        self.pause_beat()
-
-        # NASA debunked
-        nasa_text = brand_text(
-            "Debunked by NASA",
-            font_size=FONT_SIZE_CAPTION,
-            color=BRAND_ERROR,
-        )
-        nasa_text.move_to(POS_FOOTER)
-        self.play(FadeIn(nasa_text, shift=UP * 0.2), run_time=FADE_NORMAL)
-        self.pause_medium()
+        # "No physical law requires this"
+        debunk = brand_text("No physical law requires this.",
+                            font_size=FONT_SIZE_SUBTITLE, color=BRAND_LIGHT)
+        debunk.move_to(DOWN * 1.5)
+        self.play(FadeIn(debunk, shift=UP * 0.2), run_time=0.8)
+        self.wait(2.5)
 
         self.fade_out_all()
-        self.pause_beat()
+        self.wait(1.0)
 
-    def _show_angle_of_attack(self):
-        """Show angle of attack and stall."""
-        title = self.make_title("Angle of Attack")
-        self.play(Write(title), run_time=WRITE_SPEED)
-        self.pause_beat()
+        # The secret: angle of attack
+        title2 = self.make_title("The Secret Variable")
+        self.play(Write(title2), run_time=WRITE_SPEED)
+        self.wait(1.5)
 
-        # Wing at neutral angle
+        # Wing at angle
         wing = Rectangle(width=4, height=0.2, color=BRAND_LIGHT, stroke_width=2)
-        wing.set_fill(BRAND_LIGHT, opacity=0.6)
-        wing.move_to(POS_CENTER)
-        self.play(FadeIn(wing), run_time=FADE_NORMAL)
-        self.pause_beat()
+        wing.set_fill(BRAND_LIGHT, opacity=0.5)
+        wing.rotate(PI / 15)
+        wing.move_to(ORIGIN)
+        self.play(FadeIn(wing), run_time=0.5)
+        self.wait(1.0)
 
-        # Small lift arrow
-        lift = Arrow(
-            wing.get_center(),
-            wing.get_center() + UP * 1.0,
-            color=BRAND_ACCENT,
-            stroke_width=3,
-        )
-        self.play(Create(lift), run_time=FADE_NORMAL)
-        self.pause_short()
+        # Angle arc
+        angle_arc = Arc(radius=1.5, start_angle=0, angle=PI / 15, color=BRAND_ACCENT)
+        angle_label = brand_text("Angle of Attack", font_size=FONT_SIZE_CAPTION,
+                                 color=BRAND_ACCENT)
+        angle_label.next_to(angle_arc, RIGHT, buff=0.3)
+        self.play(Create(angle_arc), FadeIn(angle_label), run_time=0.8)
+        self.wait(2.5)
 
-        # Increase angle - more lift
-        self.play(
-            Rotate(wing, angle=PI / 18),  # ~10 degrees
-            lift.animate.put_start_and_end_on(wing.get_center(), wing.get_center() + UP * 1.8),
-            run_time=FADE_NORMAL,
-        )
-        self.pause_short()
+        # "More angle = more lift (up to a point)"
+        more_lift = brand_text("More angle = more lift",
+                               font_size=FONT_SIZE_BODY, color=BRAND_LIGHT)
+        more_lift.move_to(DOWN * 2.0)
+        self.play(Write(more_lift), run_time=1.0)
+        self.wait(2.0)
 
-        # More angle
-        angle_label = brand_text(
-            "More angle = more lift", font_size=FONT_SIZE_BODY, color=BRAND_ACCENT
-        )
-        angle_label.move_to(POS_FOOTER)
-        self.play(FadeIn(angle_label), run_time=FADE_FAST)
-        self.pause_medium()
+        # Increase angle animation
+        self.play(Rotate(wing, angle=PI / 20), run_time=1.5)
+        self.wait(2.0)
 
-        # Too much angle - STALL
-        self.play(FadeOut(angle_label), run_time=FADE_FAST)
-
-        self.play(
-            Rotate(wing, angle=PI / 12),  # Another 15 degrees
-            lift.animate.put_start_and_end_on(wing.get_center(), wing.get_center() + UP * 0.3),
-            run_time=FADE_SLOW,
-        )
-        self.pause_beat()
-
-        # Stall indicator
-        stall_text = brand_text("STALL", font_size=FONT_SIZE_HERO, color=BRAND_ERROR)
-        stall_text.move_to(POS_CENTER + DOWN * 1.5)
-        self.play(FadeIn(stall_text, scale=1.5), run_time=FADE_FAST)
-        self.pause_beat()
-
-        too_much = brand_text(
-            "Too much angle = airflow separates = no lift",
-            font_size=FONT_SIZE_CAPTION,
-            color=BRAND_MUTED,
-        )
-        too_much.move_to(POS_FOOTER)
-        self.play(FadeIn(too_much, shift=UP * 0.2), run_time=FADE_NORMAL)
-        self.pause_medium()
+        # Pad
+        elapsed = (WRITE_SPEED + 1.5 + 1.5 + 2.5 + 0.5 + 1.5 + 0.8 + 2.5 +
+                   FADE_NORMAL + 1.0 + WRITE_SPEED + 1.5 + 0.5 + 1.0 + 0.8 + 2.5 +
+                   1.0 + 2.0 + 1.5 + 2.0)
+        remaining = target - elapsed
+        if remaining > 0:
+            self.wait(remaining)
 
         self.fade_out_all()
 
 
 class Outro(StudioScene):
-    """Recap the key insight and call to action."""
+    """Recap + CTA."""
 
     def construct(self):
-        # Recap
-        recap = brand_text(
-            "Not magic. Just pushing air down.",
-            font_size=FONT_SIZE_TITLE,
-            color=BRAND_LIGHT,
-        )
-        recap.move_to(UP * 1.0)
-        self.play(Write(recap), run_time=WRITE_SPEED)
-        self.pause_medium()
+        target = _scene_dur("Outro")
 
-        # Newton + Bernoulli summary
-        summary = brand_text(
-            "Newton + Bernoulli = Flight",
-            font_size=FONT_SIZE_BODY,
-            color=BRAND_MUTED,
-        )
-        summary.move_to(ORIGIN)
-        self.play(FadeIn(summary, shift=UP * 0.3), run_time=FADE_NORMAL)
-        self.pause_medium()
+        # Recap title
+        title = self.make_title("So Why Don't Planes Fall?")
+        self.play(Write(title), run_time=WRITE_SPEED)
+        self.wait(2.0)
 
-        # CTA
+        # Three key points
+        points = [
+            "1. Wings deflect air downward (Newton)",
+            "2. Curved shape creates pressure difference (Bernoulli)",
+            "3. Angle of attack controls how much lift",
+        ]
+
+        point_group = VGroup()
+        for i, point_text in enumerate(points):
+            p = brand_text(point_text, font_size=FONT_SIZE_BODY, color=BRAND_LIGHT)
+            p.move_to(UP * (0.5 - i * 1.0) + LEFT * 0.5)
+            p.align_to(LEFT * 4.5, LEFT)
+            point_group.add(p)
+            self.play(FadeIn(p, shift=RIGHT * 0.3), run_time=0.6)
+            self.wait(1.5)
+
+        self.wait(2.0)
+
+        # "Next time you fly..."
         self.fade_out_all()
         self.pause_beat()
+        closing = brand_text("Next time you fly... look at the wing.",
+                             font_size=FONT_SIZE_SUBTITLE, color=BRAND_ACCENT)
+        self.play(FadeIn(closing, shift=UP * 0.2), run_time=0.8)
+        self.wait(3.0)
 
-        cta = brand_text("Subscribe for more", font_size=FONT_SIZE_TITLE, color=BRAND_PRIMARY)
-        cta.move_to(UP * 0.5)
-        self.play(FadeIn(cta, shift=UP * 0.3), run_time=FADE_NORMAL)
+        # Subscribe
+        self.fade_out_all()
         self.pause_beat()
+        sub = brand_text("Subscribe for more", font_size=FONT_SIZE_BODY, color=BRAND_PRIMARY)
+        self.play(FadeIn(sub), run_time=0.5)
 
-        next_vid = brand_text(
-            "Next: Why Ships Don't Sink",
-            font_size=FONT_SIZE_BODY,
-            color=BRAND_MUTED,
-        )
-        next_vid.move_to(DOWN * 1.0)
-        self.play(FadeIn(next_vid, shift=UP * 0.2), run_time=FADE_NORMAL)
-        self.pause_long()
+        # Pad
+        elapsed = (WRITE_SPEED + 2.0 + 3 * (0.6 + 1.5) + 2.0 +
+                   FADE_NORMAL + PAUSE_BEAT + 0.8 + 3.0 +
+                   FADE_NORMAL + PAUSE_BEAT + 0.5)
+        remaining = target - elapsed
+        if remaining > 0:
+            self.wait(remaining)
+
         self.fade_out_all()
