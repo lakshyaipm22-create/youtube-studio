@@ -1,0 +1,14 @@
+# YouTube Studio - Video Catalog
+# Master index of all videos in this repository.
+# Use this to track status, series, and metadata across 100+ videos.
+
+videos: {}
+  # Example entry:
+  # 001_what_is_python:
+  #   title: "What is Python?"
+  #   series: python-basics
+  #   status: draft          # draft | scripted | animated | rendered | published
+  #   duration_target: "3-4 min"
+  #   published: null
+  #   youtube_url: null
+  #   tags: [python, beginner, programming]
