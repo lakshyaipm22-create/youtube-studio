@@ -22,7 +22,10 @@ class RenderStage(StageRunner):
 
     name = "render"
     required_inputs = ["scenes/scenes.py"]
-    expected_outputs = []  # Dynamic: depends on number of scenes
+    # Rendered output paths are dynamic (depend on scene count and names),
+    # so base-class validation is skipped. The custom validate_output() override
+    # checks that at least one MP4 exists in output/.
+    expected_outputs = []
 
     def run(self) -> bool:
         """Render scenes/scenes.py to output/ directory."""

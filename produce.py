@@ -116,9 +116,12 @@ def find_video_folder(video_path: str | None, topic: str | None) -> Path | None:
         # Check if a folder for this topic already exists
         slug = slugify(topic)
         for item in VIDEOS_DIR.iterdir():
-            if item.is_dir() and slug in item.name:
-                logger.info(f"Found existing folder: {item.relative_to(ROOT)}")
-                return item
+            if item.is_dir():
+                # Strip numeric prefix (e.g. "001_") and compare full slug exactly
+                folder_slug = re.sub(r"^\d+_", "", item.name)
+                if folder_slug == slug:
+                    logger.info(f"Found existing folder: {item.relative_to(ROOT)}")
+                    return item
         # Create new folder
         return create_video_folder(topic)
 
