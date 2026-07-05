@@ -69,6 +69,9 @@ produce: ## Full pipeline (voice → render → subs → export): make produce v
 	@echo ""
 	@echo "✅ Production complete: output/$(v)/final.mp4"
 
+produce-topic: ## AI pipeline from topic: make produce-topic topic="Why Airplanes Don't Fall"
+	python produce.py "$(topic)"
+
 # === UTILITIES ===
 
 list: ## List all videos and their status
