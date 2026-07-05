@@ -54,9 +54,7 @@ class Intro(StudioScene):
         self.wait(1.5)
 
         # "= 80 elephants"
-        elephants = brand_text(
-            "= 80 elephants", font_size=FONT_SIZE_BODY, color=BRAND_MUTED
-        )
+        elephants = brand_text("= 80 elephants", font_size=FONT_SIZE_BODY, color=BRAND_MUTED)
         elephants.next_to(tons_group, DOWN, buff=0.5)
         self.play(FadeIn(elephants, shift=UP * 0.2), run_time=0.8)
         self.wait(1.0)
@@ -135,8 +133,13 @@ class WindAndWing(StudioScene):
         # Wind lines
         wind = VGroup(
             *[
-                Line(LEFT * 4 + UP * (i * 0.3 - 0.6), LEFT * 2.5 + UP * (i * 0.3 - 0.6),
-                     color=BRAND_MUTED, stroke_width=1, stroke_opacity=0.5)
+                Line(
+                    LEFT * 4 + UP * (i * 0.3 - 0.6),
+                    LEFT * 2.5 + UP * (i * 0.3 - 0.6),
+                    color=BRAND_MUTED,
+                    stroke_width=1,
+                    stroke_opacity=0.5,
+                )
                 for i in range(5)
             ]
         )
@@ -148,8 +151,9 @@ class WindAndWing(StudioScene):
         self.wait(1.5)
 
         # Lift arrow
-        lift = Arrow(hand.get_center(), hand.get_center() + UP * 2, color=BRAND_ACCENT,
-                     stroke_width=4)
+        lift = Arrow(
+            hand.get_center(), hand.get_center() + UP * 2, color=BRAND_ACCENT, stroke_width=4
+        )
         lift_label = brand_text("LIFT", font_size=FONT_SIZE_BODY, color=BRAND_ACCENT)
         lift_label.next_to(lift, RIGHT, buff=0.2)
         self.play(Create(lift), run_time=0.8)
@@ -157,15 +161,39 @@ class WindAndWing(StudioScene):
         self.wait(2.0)
 
         # "You just created lift"
-        reveal = brand_text("You just created lift.", font_size=FONT_SIZE_SUBTITLE,
-                            color=BRAND_LIGHT)
+        reveal = brand_text(
+            "You just created lift.", font_size=FONT_SIZE_SUBTITLE, color=BRAND_LIGHT
+        )
         reveal.move_to(DOWN * 2.5)
         self.play(Write(reveal), run_time=1.0)
 
         # Pad to target
-        elapsed = (WRITE_SPEED + 1.0 + 1.0 + 2.0 + 1.5 + 1.5 + 0.8 + 2.0 + 0.5 + 2.0 +
-                   FADE_NORMAL + 1.0 + WRITE_SPEED + 1.0 + 0.5 + 1.5 + 0.5 + 1.0 + 0.8 +
-                   1.5 + 0.8 + 0.3 + 2.0 + 1.0)
+        elapsed = (
+            WRITE_SPEED
+            + 1.0
+            + 1.0
+            + 2.0
+            + 1.5
+            + 1.5
+            + 0.8
+            + 2.0
+            + 0.5
+            + 2.0
+            + FADE_NORMAL
+            + 1.0
+            + WRITE_SPEED
+            + 1.0
+            + 0.5
+            + 1.5
+            + 0.5
+            + 1.0
+            + 0.8
+            + 1.5
+            + 0.8
+            + 0.3
+            + 2.0
+            + 1.0
+        )
         remaining = target - elapsed
         if remaining > 0:
             self.wait(remaining)
@@ -192,10 +220,15 @@ class LiftExplained(StudioScene):
 
         # Down arrows (action)
         down_arrows = VGroup(
-            *[Arrow(wing.get_center() + RIGHT * (i - 1.5) * 1.0,
+            *[
+                Arrow(
+                    wing.get_center() + RIGHT * (i - 1.5) * 1.0,
                     wing.get_center() + DOWN * 2 + RIGHT * (i - 1.5) * 1.0,
-                    color=BRAND_PRIMARY, stroke_width=2)
-              for i in range(4)]
+                    color=BRAND_PRIMARY,
+                    stroke_width=2,
+                )
+                for i in range(4)
+            ]
         )
         action_label = brand_text("Action", font_size=FONT_SIZE_CAPTION, color=BRAND_PRIMARY)
         action_label.next_to(down_arrows, DOWN, buff=0.2)
@@ -204,10 +237,15 @@ class LiftExplained(StudioScene):
         self.wait(2.0)
 
         # Up arrow (reaction)
-        up_arrow = Arrow(wing.get_center() + DOWN * 0.3, wing.get_center() + UP * 2.5,
-                         color=BRAND_ACCENT, stroke_width=5)
-        reaction_label = brand_text("Reaction = LIFT", font_size=FONT_SIZE_CAPTION,
-                                    color=BRAND_ACCENT)
+        up_arrow = Arrow(
+            wing.get_center() + DOWN * 0.3,
+            wing.get_center() + UP * 2.5,
+            color=BRAND_ACCENT,
+            stroke_width=5,
+        )
+        reaction_label = brand_text(
+            "Reaction = LIFT", font_size=FONT_SIZE_CAPTION, color=BRAND_ACCENT
+        )
         reaction_label.next_to(up_arrow, RIGHT, buff=0.2)
         self.play(Create(up_arrow), run_time=1.0)
         self.play(FadeIn(reaction_label), run_time=0.3)
@@ -237,8 +275,9 @@ class LiftExplained(StudioScene):
         self.wait(2.5)
 
         # "Pressure difference pushes wing up"
-        explanation = brand_text("Pressure difference → net upward force",
-                                 font_size=FONT_SIZE_BODY, color=BRAND_LIGHT)
+        explanation = brand_text(
+            "Pressure difference → net upward force", font_size=FONT_SIZE_BODY, color=BRAND_LIGHT
+        )
         explanation.move_to(DOWN * 2.5)
         self.play(Write(explanation), run_time=1.2)
         self.wait(2.0)
@@ -250,9 +289,32 @@ class LiftExplained(StudioScene):
         self.play(FadeIn(both, scale=1.2), run_time=0.8)
 
         # Pad
-        elapsed = (WRITE_SPEED + 1.5 + 0.8 + 1.0 + 1.0 + 0.3 + 2.0 + 1.0 + 0.3 + 3.0 +
-                   FADE_NORMAL + 1.0 + WRITE_SPEED + 1.5 + 0.8 + 1.0 + 0.5 + 0.5 + 2.5 +
-                   1.2 + 2.0 + FADE_NORMAL + PAUSE_BEAT + 0.8)
+        elapsed = (
+            WRITE_SPEED
+            + 1.5
+            + 0.8
+            + 1.0
+            + 1.0
+            + 0.3
+            + 2.0
+            + 1.0
+            + 0.3
+            + 3.0
+            + FADE_NORMAL
+            + 1.0
+            + WRITE_SPEED
+            + 1.5
+            + 0.8
+            + 1.0
+            + 0.5
+            + 0.5
+            + 2.5
+            + 1.2
+            + 2.0
+            + FADE_NORMAL
+            + PAUSE_BEAT
+            + 0.8
+        )
         remaining = target - elapsed
         if remaining > 0:
             self.wait(remaining)
@@ -272,22 +334,21 @@ class MythBust(StudioScene):
         self.wait(1.5)
 
         myth_text = brand_text(
-            '"Air on top must arrive at the same time"',
-            font_size=FONT_SIZE_BODY, color=BRAND_MUTED
+            '"Air on top must arrive at the same time"', font_size=FONT_SIZE_BODY, color=BRAND_MUTED
         )
         myth_text.move_to(ORIGIN)
         self.play(Write(myth_text), run_time=1.5)
         self.wait(2.5)
 
         # Cross it out
-        cross = Line(myth_text.get_left(), myth_text.get_right(),
-                     color=BRAND_ERROR, stroke_width=4)
+        cross = Line(myth_text.get_left(), myth_text.get_right(), color=BRAND_ERROR, stroke_width=4)
         self.play(Create(cross), run_time=0.5)
         self.wait(1.5)
 
         # "No physical law requires this"
-        debunk = brand_text("No physical law requires this.",
-                            font_size=FONT_SIZE_SUBTITLE, color=BRAND_LIGHT)
+        debunk = brand_text(
+            "No physical law requires this.", font_size=FONT_SIZE_SUBTITLE, color=BRAND_LIGHT
+        )
         debunk.move_to(DOWN * 1.5)
         self.play(FadeIn(debunk, shift=UP * 0.2), run_time=0.8)
         self.wait(2.5)
@@ -310,15 +371,15 @@ class MythBust(StudioScene):
 
         # Angle arc
         angle_arc = Arc(radius=1.5, start_angle=0, angle=PI / 15, color=BRAND_ACCENT)
-        angle_label = brand_text("Angle of Attack", font_size=FONT_SIZE_CAPTION,
-                                 color=BRAND_ACCENT)
+        angle_label = brand_text("Angle of Attack", font_size=FONT_SIZE_CAPTION, color=BRAND_ACCENT)
         angle_label.next_to(angle_arc, RIGHT, buff=0.3)
         self.play(Create(angle_arc), FadeIn(angle_label), run_time=0.8)
         self.wait(2.5)
 
         # "More angle = more lift (up to a point)"
-        more_lift = brand_text("More angle = more lift",
-                               font_size=FONT_SIZE_BODY, color=BRAND_LIGHT)
+        more_lift = brand_text(
+            "More angle = more lift", font_size=FONT_SIZE_BODY, color=BRAND_LIGHT
+        )
         more_lift.move_to(DOWN * 2.0)
         self.play(Write(more_lift), run_time=1.0)
         self.wait(2.0)
@@ -328,9 +389,28 @@ class MythBust(StudioScene):
         self.wait(2.0)
 
         # Pad
-        elapsed = (WRITE_SPEED + 1.5 + 1.5 + 2.5 + 0.5 + 1.5 + 0.8 + 2.5 +
-                   FADE_NORMAL + 1.0 + WRITE_SPEED + 1.5 + 0.5 + 1.0 + 0.8 + 2.5 +
-                   1.0 + 2.0 + 1.5 + 2.0)
+        elapsed = (
+            WRITE_SPEED
+            + 1.5
+            + 1.5
+            + 2.5
+            + 0.5
+            + 1.5
+            + 0.8
+            + 2.5
+            + FADE_NORMAL
+            + 1.0
+            + WRITE_SPEED
+            + 1.5
+            + 0.5
+            + 1.0
+            + 0.8
+            + 2.5
+            + 1.0
+            + 2.0
+            + 1.5
+            + 2.0
+        )
         remaining = target - elapsed
         if remaining > 0:
             self.wait(remaining)
@@ -370,8 +450,11 @@ class Outro(StudioScene):
         # "Next time you fly..."
         self.fade_out_all()
         self.pause_beat()
-        closing = brand_text("Next time you fly... look at the wing.",
-                             font_size=FONT_SIZE_SUBTITLE, color=BRAND_ACCENT)
+        closing = brand_text(
+            "Next time you fly... look at the wing.",
+            font_size=FONT_SIZE_SUBTITLE,
+            color=BRAND_ACCENT,
+        )
         self.play(FadeIn(closing, shift=UP * 0.2), run_time=0.8)
         self.wait(3.0)
 
@@ -382,9 +465,19 @@ class Outro(StudioScene):
         self.play(FadeIn(sub), run_time=0.5)
 
         # Pad
-        elapsed = (WRITE_SPEED + 2.0 + 3 * (0.6 + 1.5) + 2.0 +
-                   FADE_NORMAL + PAUSE_BEAT + 0.8 + 3.0 +
-                   FADE_NORMAL + PAUSE_BEAT + 0.5)
+        elapsed = (
+            WRITE_SPEED
+            + 2.0
+            + 3 * (0.6 + 1.5)
+            + 2.0
+            + FADE_NORMAL
+            + PAUSE_BEAT
+            + 0.8
+            + 3.0
+            + FADE_NORMAL
+            + PAUSE_BEAT
+            + 0.5
+        )
         remaining = target - elapsed
         if remaining > 0:
             self.wait(remaining)
