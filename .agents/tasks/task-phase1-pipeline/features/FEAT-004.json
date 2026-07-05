@@ -1,0 +1,28 @@
+{
+  "id": "FEAT-004",
+  "type": "fix",
+  "description": "Address review feedback: remove dead expected_outputs mutation in voice stage, fix substring folder matching in produce.py, add clarifying comment to render stage empty expected_outputs.",
+  "status": "completed",
+  "steps": [
+    "Remove the dead `self.expected_outputs = [\"voice/voiceover.mp3\"]` line in pipeline/stages/voice.py since the custom validate_output() handles both extensions already.",
+    "In produce.py, fix find_video_folder to strip the numeric prefix and compare the full slug exactly instead of using substring containment.",
+    "In pipeline/stages/render.py, add a comment to the empty expected_outputs explaining why it is empty (rendered output paths are dynamic, validated by custom override).",
+    "Run ruff check . && ruff format --check .",
+    "Run pytest tests/ -v and verify all tests pass."
+  ],
+  "acceptance_criteria": [
+    "voice.py no longer mutates self.expected_outputs at runtime",
+    "find_video_folder uses exact slug matching after stripping numeric prefix",
+    "render.py has a clarifying comment on expected_outputs = []",
+    "ruff check . passes",
+    "ruff format --check . passes",
+    "pytest tests/ -v passes all tests"
+  ],
+  "verification": [
+    "ruff check .",
+    "ruff format --check .",
+    "pytest tests/ -v"
+  ],
+  "blocked_reason": null,
+  "findings": "All three review issues fixed cleanly. No test changes needed since existing tests cover the affected code paths. 60 tests still pass."
+}

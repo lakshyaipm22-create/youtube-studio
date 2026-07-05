@@ -1,0 +1,47 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Build the complete Phase 1 production pipeline: produce.py CLI entry point and all pipeline stages (research, script, storyboard, animation_plan, manim_code, voice, subtitles, render, export). Each stage is a separate module in pipeline/stages/, reads the previous stage's output, writes to the video folder, and supports independent re-running. Includes LLM abstraction, progress tracking (status.yaml), input/output validation, and clear error handling.",
+  "status": "completed",
+  "steps": [
+    "Create produce.py at repo root as the main CLI entry point. It should accept: python produce.py 'Topic Name' for full pipeline, python produce.py --from <stage> for resuming, python produce.py --only <stage> for single stage. It determines or creates the video folder (videos/NNN_slug/), reads status.yaml to know what is done, and runs stages sequentially.",
+    "Create pipeline/stages/__init__.py that exports the stage registry: an ordered list of stage names and their runner functions.",
+    "Create pipeline/stages/base.py with a base Stage class/protocol: each stage has a name, validates input (checks previous stage output exists), runs, validates output, updates status.yaml. Include clear logging with stage name prefix.",
+    "Create pipeline/stages/research.py: Takes topic.yaml, uses LLM to generate research.yaml with key facts, hook ideas, misconceptions, and sources. Output: videos/NNN/research.yaml",
+    "Create pipeline/stages/script.py: Takes research.yaml, uses LLM + prompts/script_writer.md template to generate script.md. Output: videos/NNN/script.md",
+    "Create pipeline/stages/storyboard.py: Takes script.md, uses LLM + prompts/scene_planner.md to generate storyboard.md with per-scene visual plans. Output: videos/NNN/storyboard.md",
+    "Create pipeline/stages/animation_plan.py: Takes storyboard.md, generates animation_plan.yaml with technical Manim object specs, timing, and SVG requirements. Output: videos/NNN/animation_plan.yaml",
+    "Create pipeline/stages/manim_code.py: Takes animation_plan.yaml, generates scenes.py using studio library patterns (StudioScene, brand helpers, etc). Output: videos/NNN/scenes.py",
+    "Create pipeline/stages/voice.py: Takes script.md, calls the existing pipeline/voiceover.py logic (reuse extract_narration + TTS generation) OR wraps it. Output: videos/NNN/voice/voiceover.wav (or .mp3)",
+    "Create pipeline/stages/subtitles.py: Takes voice output, calls existing pipeline/subtitles.py logic. Output: videos/NNN/subtitles/subtitles.srt",
+    "Create pipeline/stages/render.py: Takes scenes.py, calls existing pipeline/render.py logic. Output: videos/NNN/output/ with rendered MP4s",
+    "Create pipeline/stages/export.py: Takes rendered scenes + voice + subtitles, calls existing pipeline/export.py logic. Output: videos/NNN/output/final.mp4",
+    "Create pipeline/llm.py: A simple LLM abstraction. Define a generate(prompt, system_prompt=None, model=None) function that calls OpenAI-compatible API. Support OPENAI_API_KEY env var. If no key available, include a fallback that generates structured placeholder output so the pipeline can run end-to-end without an API key (useful for testing).",
+    "Create a status.yaml tracking system: each video folder gets a status.yaml showing completed stages with timestamps. Format: stages: [{name: research, status: complete, completed_at: timestamp}, ...]. produce.py reads this to know where to resume.",
+    "Create topic.yaml generation: when produce.py receives a topic string, it creates videos/NNN_slug/topic.yaml with the topic, tags, and metadata. This is the input to the first stage.",
+    "Update pyproject.toml to add openai>=1.0 as an optional dependency under [project.optional-dependencies] ai = ['openai>=1.0']",
+    "Update Makefile to add a produce target that calls produce.py: make produce-topic topic='Why Airplanes Dont Fall'",
+    "Ensure all new code passes ruff check and ruff format. Line length 100, use type hints, docstrings on public functions."
+  ],
+  "acceptance_criteria": [
+    "python produce.py --help shows usage with --from, --only, and positional topic argument",
+    "python produce.py 'Test Topic' --dry-run (or similar) shows the pipeline stages it would run",
+    "All pipeline/stages/*.py files exist and are importable",
+    "pipeline/llm.py exists with a generate() function that works with or without API key",
+    "status.yaml tracking works: shows which stages are complete",
+    "Each stage validates its input and fails with a clear error if previous stage output is missing",
+    "ruff check . passes",
+    "ruff format --check . passes",
+    "The video folder structure matches: videos/NNN_slug/ with topic.yaml, research.yaml, script.md, storyboard.md, animation_plan.yaml, scenes/, voice/, subtitles/, output/",
+    "The --from and --only flags work correctly to resume or run individual stages"
+  ],
+  "verification": [
+    "ruff check .",
+    "ruff format --check .",
+    "python produce.py --help",
+    "python -c 'from pipeline.stages import STAGES; print(STAGES)'",
+    "python -c 'from pipeline.llm import generate; print(generate.__doc__)'"
+  ],
+  "blocked_reason": null,
+  "findings": "All 9 pipeline stages implemented and tested. AI stages use placeholder output when OPENAI_API_KEY is unset. The video/ folder created by dry-run was cleaned up. ruff check and format pass. All acceptance criteria verified: --help, --dry-run, --from, --only, --list-stages, input validation, status.yaml tracking, and imports all work correctly."
+}

@@ -11,13 +11,15 @@ Usage:
     python pipeline/voiceover.py videos/001_what_is_python/script.md
     python pipeline/voiceover.py videos/001_what_is_python/script.md --engine edge
     python pipeline/voiceover.py videos/001_what_is_python/script.md --voice af_heart
-    python pipeline/voiceover.py videos/001_what_is_python/script.md --voice en-US-AriaNeural --engine edge
+    python pipeline/voiceover.py videos/001_what_is_python/script.md \\
+        --voice en-US-AriaNeural --engine edge
 
 Output:
     output/{video_name}/voiceover.wav
 """
 
 import argparse
+import asyncio
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -64,10 +66,10 @@ def generate_with_kokoro(text: str, output_path: Path, voice: str = "af_heart"):
     """Generate voiceover using Kokoro-82M (local TTS)."""
     try:
         import kokoro
-    except ImportError:
+    except ImportError as err:
         print("❌ Kokoro not installed. Install with: pip install kokoro")
         print("   Or use --engine edge for Edge-TTS instead.")
-        raise SystemExit(1) from None
+        raise SystemExit(1) from err
 
     print(f"🎙️  Generating voiceover with Kokoro (voice: {voice})...")
     print(f"   Text length: {len(text)} characters")
@@ -99,14 +101,12 @@ def generate_with_edge_tts(text: str, output_path: Path, voice: str = "en-US-Ari
     """Generate voiceover using Edge-TTS (cloud, free)."""
     try:
         import edge_tts
-    except ImportError:
+    except ImportError as err:
         print("❌ Edge-TTS not installed. Install with: pip install edge-tts")
-        raise SystemExit(1) from None
+        raise SystemExit(1) from err
 
     print(f"🎙️  Generating voiceover with Edge-TTS (voice: {voice})...")
     print(f"   Text length: {len(text)} characters")
-
-    import asyncio
 
     async def _generate():
         communicate = edge_tts.Communicate(text, voice)

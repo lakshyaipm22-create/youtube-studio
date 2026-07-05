@@ -31,9 +31,9 @@ def generate_subtitles(audio_path: Path, output_path: Path, model_size: str = "m
     """Generate SRT subtitles from audio file."""
     try:
         from faster_whisper import WhisperModel
-    except ImportError:
+    except ImportError as err:
         print("❌ faster-whisper not installed. Install with: pip install faster-whisper")
-        raise SystemExit(1) from None
+        raise SystemExit(1) from err
 
     print(f"📝 Generating subtitles with faster-whisper ({model_size} model)...")
     print(f"   Audio: {audio_path.name}")
