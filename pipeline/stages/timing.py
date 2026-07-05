@@ -203,18 +203,18 @@ def match_segments_to_scenes(
             sentences.append(
                 {
                     "text": seg["text"].strip(),
-                    "start": round(seg["start"], 3),
-                    "end": round(seg["end"], 3),
-                    "duration": round(seg["end"] - seg["start"], 3),
+                    "start": float(round(seg["start"], 3)),
+                    "end": float(round(seg["end"], 3)),
+                    "duration": float(round(seg["end"] - seg["start"], 3)),
                 }
             )
 
         result.append(
             {
                 "name": scene["name"],
-                "start": round(scene_start, 3),
-                "end": round(scene_end, 3),
-                "duration": round(scene_end - scene_start, 3),
+                "start": float(round(scene_start, 3)),
+                "end": float(round(scene_end, 3)),
+                "duration": float(round(scene_end - scene_start, 3)),
                 "sentences": sentences,
             }
         )
@@ -293,7 +293,7 @@ class TimingStage(StageRunner):
         # Compute total duration
         total_duration = 0.0
         if scene_timings:
-            total_duration = max(s["end"] for s in scene_timings)
+            total_duration = float(max(s["end"] for s in scene_timings))
 
         # Write timing.yaml
         timing_data = {
