@@ -82,7 +82,7 @@ class WindAndWing(StudioScene):
             angle=-0.4,
             color=BRAND_PRIMARY,
         )
-        self.play(GrowArrow(top_arrow), run_time=FADE_NORMAL)
+        self.play(Create(top_arrow), run_time=FADE_NORMAL)
         self.pause_beat()
 
         # Straight bottom arrow
@@ -92,7 +92,7 @@ class WindAndWing(StudioScene):
             color=BRAND_MUTED,
             stroke_width=2,
         )
-        self.play(GrowArrow(bot_arrow), run_time=FADE_NORMAL)
+        self.play(Create(bot_arrow), run_time=FADE_NORMAL)
         self.pause_short()
 
         # Label
@@ -160,7 +160,7 @@ class WindAndWing(StudioScene):
             ]
         )
         self.play(
-            *[GrowArrow(a) for a in air_down],
+            *[Create(a) for a in air_down],
             run_time=FADE_NORMAL,
         )
         self.pause_beat()
@@ -176,7 +176,7 @@ class WindAndWing(StudioScene):
         lift_label = brand_text("LIFT", font_size=FONT_SIZE_BODY, color=BRAND_ACCENT)
         lift_label.next_to(lift_arrow, RIGHT, buff=0.2)
 
-        self.play(GrowArrow(lift_arrow), run_time=FADE_NORMAL)
+        self.play(Create(lift_arrow), run_time=FADE_NORMAL)
         self.play(FadeIn(lift_label, shift=LEFT * 0.2), run_time=FADE_FAST)
         self.pause_medium()
 
@@ -235,7 +235,7 @@ class LiftExplained(StudioScene):
         action_label.next_to(air_down_arrows, DOWN, buff=0.2)
 
         self.play(
-            *[GrowArrow(a) for a in air_down_arrows],
+            *[Create(a) for a in air_down_arrows],
             run_time=FADE_NORMAL,
         )
         self.play(FadeIn(action_label), run_time=FADE_FAST)
@@ -253,7 +253,7 @@ class LiftExplained(StudioScene):
         )
         reaction_label.next_to(lift_arrow, RIGHT, buff=0.2)
 
-        self.play(GrowArrow(lift_arrow), run_time=FADE_NORMAL)
+        self.play(Create(lift_arrow), run_time=FADE_NORMAL)
         self.play(FadeIn(reaction_label), run_time=FADE_FAST)
         self.pause_medium()
 
@@ -316,7 +316,7 @@ class LiftExplained(StudioScene):
         newton_arrow.move_to(LEFT * 3 + DOWN * 0.3)
 
         self.play(Write(newton_title), run_time=WRITE_SPEED)
-        self.play(GrowArrow(newton_arrow), run_time=FADE_NORMAL)
+        self.play(Create(newton_arrow), run_time=FADE_NORMAL)
         self.pause_beat()
 
         # Bernoulli side
@@ -327,7 +327,7 @@ class LiftExplained(StudioScene):
         bern_arrow.move_to(RIGHT * 3 + DOWN * 0.3)
 
         self.play(Write(bern_title), run_time=WRITE_SPEED)
-        self.play(GrowArrow(bern_arrow), run_time=FADE_NORMAL)
+        self.play(Create(bern_arrow), run_time=FADE_NORMAL)
         self.pause_medium()
 
         # Plus sign
@@ -427,7 +427,7 @@ class MythBust(StudioScene):
             color=BRAND_ACCENT,
             stroke_width=3,
         )
-        self.play(GrowArrow(lift), run_time=FADE_NORMAL)
+        self.play(Create(lift), run_time=FADE_NORMAL)
         self.pause_short()
 
         # Increase angle - more lift
