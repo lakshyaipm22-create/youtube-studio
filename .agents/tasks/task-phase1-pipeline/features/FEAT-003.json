@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "feat",
   "description": "Add tests for the pipeline system: test stage validation, status tracking, CLI argument parsing, LLM fallback, and end-to-end dry run. Verify everything passes ruff and pytest.",
-  "status": "pending",
+  "status": "completed",
   "steps": [
     "Create tests/ directory at project root",
     "Create tests/__init__.py (empty)",
@@ -26,5 +26,5 @@
     "ruff format --check ."
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Logger output from produce.py goes to stderr (via logging.StreamHandler) not stdout. Subtitles stage has empty required_inputs and render stage has empty expected_outputs - these are tool-based stages that may be incomplete. pip install -e '.[dev]' was needed to install pytest. All 60 tests pass with placeholder LLM (no API key). The pipeline/llm.py diff from a previous session was uncommitted and is included in this commit."
 }

@@ -76,20 +76,21 @@ def _call_api(
 def _placeholder_response(prompt: str, system_prompt: str | None = None) -> str:
     """Generate structured placeholder output for testing without an API key.
 
-    Detects the type of request from the prompt content and returns
-    appropriate placeholder data.
+    Uses the system_prompt (unique per stage) as the primary signal for detection,
+    falling back to prompt content analysis.
     """
-    prompt_lower = prompt.lower()
+    sys_lower = (system_prompt or "").lower()
 
-    if "research" in prompt_lower and ("yaml" in prompt_lower or "facts" in prompt_lower):
+    # Use system prompt as primary signal (each stage has a unique one)
+    if "research assistant" in sys_lower:
         return _placeholder_research()
-    elif "script" in prompt_lower and "narration" in prompt_lower:
+    elif "script writer" in sys_lower:
         return _placeholder_script()
-    elif "storyboard" in prompt_lower or "scene plan" in prompt_lower:
+    elif "visual director" in sys_lower:
         return _placeholder_storyboard()
-    elif "animation" in prompt_lower and "plan" in prompt_lower:
+    elif "animation engineer" in sys_lower:
         return _placeholder_animation_plan()
-    elif "manim" in prompt_lower or "scenes.py" in prompt_lower:
+    elif "manim expert" in sys_lower:
         return _placeholder_manim_code()
     else:
         return f"[PLACEHOLDER] Generated response for prompt ({len(prompt)} chars)"
