@@ -18,11 +18,7 @@ Output:
 """
 
 import argparse
-import asyncio
-import os
-import re
 from pathlib import Path
-
 
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = ROOT / "output"
@@ -71,7 +67,7 @@ def generate_with_kokoro(text: str, output_path: Path, voice: str = "af_heart"):
     except ImportError:
         print("❌ Kokoro not installed. Install with: pip install kokoro")
         print("   Or use --engine edge for Edge-TTS instead.")
-        raise SystemExit(1)
+        raise SystemExit(1) from None
 
     print(f"🎙️  Generating voiceover with Kokoro (voice: {voice})...")
     print(f"   Text length: {len(text)} characters")
@@ -105,10 +101,12 @@ def generate_with_edge_tts(text: str, output_path: Path, voice: str = "en-US-Ari
         import edge_tts
     except ImportError:
         print("❌ Edge-TTS not installed. Install with: pip install edge-tts")
-        raise SystemExit(1)
+        raise SystemExit(1) from None
 
     print(f"🎙️  Generating voiceover with Edge-TTS (voice: {voice})...")
     print(f"   Text length: {len(text)} characters")
+
+    import asyncio
 
     async def _generate():
         communicate = edge_tts.Communicate(text, voice)
@@ -122,10 +120,17 @@ def generate_with_edge_tts(text: str, output_path: Path, voice: str = "en-US-Ari
 def main():
     parser = argparse.ArgumentParser(description="Generate voiceover from script")
     parser.add_argument("script", help="Path to script.md")
-    parser.add_argument("--engine", choices=["kokoro", "edge"], default="kokoro",
-                        help="TTS engine (default: kokoro)")
-    parser.add_argument("--voice", default=None,
-                        help="Voice name (default: af_heart for Kokoro, en-US-AriaNeural for Edge)")
+    parser.add_argument(
+        "--engine",
+        choices=["kokoro", "edge"],
+        default="kokoro",
+        help="TTS engine (default: kokoro)",
+    )
+    parser.add_argument(
+        "--voice",
+        default=None,
+        help="Voice name (default: af_heart for Kokoro, en-US-AriaNeural for Edge)",
+    )
 
     args = parser.parse_args()
     script_path = Path(args.script).resolve()
