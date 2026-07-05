@@ -2,7 +2,7 @@
   "id": "FEAT-005",
   "type": "feat",
   "description": "Create timing pipeline stage and studio/timing.py helper to synchronize animation timing with voiceover duration. Add duration validation in export stage.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create pipeline/stages/timing.py: runs after voice, uses faster-whisper with word_timestamps=True to extract per-segment timing, matches segments to script scenes using # Scene headers, outputs timing.yaml",
     "Create studio/timing.py: helper module with load_timing() and data classes for scenes to consume timing information",
@@ -26,5 +26,5 @@
     "pytest tests/ -v"
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "All 102 tests pass (60 original + 42 new). ruff check and format clean. The timing stage uses faster-whisper with word_timestamps=True for transcription. Scene name extraction prefers parenthesized names (class identifiers) over colon-separated descriptive names. Export stage uses ffprobe for duration validation. The stage is positioned after voice and before subtitles in the pipeline order."
 }
