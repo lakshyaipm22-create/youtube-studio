@@ -15,6 +15,7 @@ Usage:
 """
 
 from manim import *
+
 from studio.styles import *
 
 

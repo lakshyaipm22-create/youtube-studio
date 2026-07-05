@@ -21,6 +21,7 @@ Usage:
 """
 
 from manim import *
+
 from studio.base import StudioScene
 from studio.styles import *
 
@@ -63,7 +64,9 @@ def play_outro(scene: StudioScene, next_video: str = ""):
 
     # Next video teaser
     if next_video:
-        next_text = brand_text(f"Next: {next_video}", font_size=FONT_SIZE_CAPTION, color=BRAND_MUTED)
+        next_text = brand_text(
+            f"Next: {next_video}", font_size=FONT_SIZE_CAPTION, color=BRAND_MUTED
+        )
         next_text.move_to(DOWN * 1.5)
         scene.play(FadeIn(next_text, shift=UP * 0.2), run_time=FADE_NORMAL)
 

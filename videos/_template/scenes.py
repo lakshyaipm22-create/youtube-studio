@@ -10,6 +10,7 @@ Usage:
 """
 
 from manim import *
+
 from studio.base import StudioScene
 from studio.intro import IntroScene
 from studio.outro import OutroScene

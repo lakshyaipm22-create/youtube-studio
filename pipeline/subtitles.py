@@ -14,7 +14,6 @@ Output:
 import argparse
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = ROOT / "output"
 
@@ -34,7 +33,7 @@ def generate_subtitles(audio_path: Path, output_path: Path, model_size: str = "m
         from faster_whisper import WhisperModel
     except ImportError:
         print("❌ faster-whisper not installed. Install with: pip install faster-whisper")
-        raise SystemExit(1)
+        raise SystemExit(1) from None
 
     print(f"📝 Generating subtitles with faster-whisper ({model_size} model)...")
     print(f"   Audio: {audio_path.name}")
@@ -52,7 +51,7 @@ def generate_subtitles(audio_path: Path, output_path: Path, model_size: str = "m
     subtitle_count = 0
 
     with open(output_path, "w", encoding="utf-8") as f:
-        for i, segment in enumerate(segments, 1):
+        for _i, segment in enumerate(segments, 1):
             start_time = format_timestamp(segment.start)
             end_time = format_timestamp(segment.end)
             text = segment.text.strip()
@@ -72,9 +71,12 @@ def generate_subtitles(audio_path: Path, output_path: Path, model_size: str = "m
 def main():
     parser = argparse.ArgumentParser(description="Generate subtitles from audio")
     parser.add_argument("audio", help="Path to voiceover audio file")
-    parser.add_argument("--model", default="medium",
-                        choices=["tiny", "base", "small", "medium", "large-v3"],
-                        help="Whisper model size (default: medium)")
+    parser.add_argument(
+        "--model",
+        default="medium",
+        choices=["tiny", "base", "small", "medium", "large-v3"],
+        help="Whisper model size (default: medium)",
+    )
 
     args = parser.parse_args()
     audio_path = Path(args.audio).resolve()

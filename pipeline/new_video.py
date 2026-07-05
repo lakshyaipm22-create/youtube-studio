@@ -16,13 +16,11 @@ This will:
 """
 
 import argparse
-import os
 import re
 import shutil
 from pathlib import Path
 
 import yaml
-
 
 # Project root (assumes script is run from repo root or via Makefile)
 ROOT = Path(__file__).resolve().parent.parent
@@ -130,7 +128,7 @@ def main():
     print(f"\n✅ Created: {video_dir.relative_to(ROOT)}")
     print(f"   Title:  {args.title}")
     print(f"   Number: {video_dir.name.split('_')[0]}")
-    print(f"\n📝 Next steps:")
+    print("\n📝 Next steps:")
     print(f"   1. Write your script:     {video_dir.relative_to(ROOT)}/script.md")
     print(f"   2. Plan your scenes:      {video_dir.relative_to(ROOT)}/storyboard.md")
     print(f"   3. Code your animations:  {video_dir.relative_to(ROOT)}/scenes.py")

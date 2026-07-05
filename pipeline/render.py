@@ -24,7 +24,6 @@ from pathlib import Path
 
 import yaml
 
-
 ROOT = Path(__file__).resolve().parent.parent
 VIDEOS_DIR = ROOT / "videos"
 OUTPUT_DIR = ROOT / "output"
@@ -42,7 +41,7 @@ def get_scene_order(video_dir: Path) -> list[str]:
     video_yaml = video_dir / "video.yaml"
 
     if not video_yaml.exists():
-        print(f"⚠️  No video.yaml found. Rendering all scenes in file order.")
+        print("⚠️  No video.yaml found. Rendering all scenes in file order.")
         return []
 
     with open(video_yaml) as f:
@@ -61,9 +60,13 @@ def render_scene(video_dir: Path, scene_name: str, quality: str = "high") -> boo
     output_dir = OUTPUT_DIR / video_name
 
     cmd = [
-        sys.executable, "-m", "manim", "render",
+        sys.executable,
+        "-m",
+        "manim",
+        "render",
         quality_flag,
-        "--media_dir", str(output_dir),
+        "--media_dir",
+        str(output_dir),
         str(scenes_file),
         scene_name,
     ]
@@ -88,18 +91,22 @@ def render_scene(video_dir: Path, scene_name: str, quality: str = "high") -> boo
 def main():
     parser = argparse.ArgumentParser(description="Render video scenes")
     parser.add_argument("video", help="Video folder name (e.g., 001_what_is_python)")
-    parser.add_argument("--quality", default="high",
-                        choices=["low", "medium", "high", "4k"],
-                        help="Render quality (default: high)")
-    parser.add_argument("--scene", default=None,
-                        help="Render a single scene by name")
+    parser.add_argument(
+        "--quality",
+        default="high",
+        choices=["low", "medium", "high", "4k"],
+        help="Render quality (default: high)",
+    )
+    parser.add_argument("--scene", default=None, help="Render a single scene by name")
 
     args = parser.parse_args()
     video_dir = VIDEOS_DIR / args.video
 
     if not video_dir.exists():
         print(f"❌ Video not found: {args.video}")
-        print(f"   Available: {[d.name for d in VIDEOS_DIR.iterdir() if d.is_dir() and d.name != '_template']}")
+        print(
+            f"   Available: {[d.name for d in VIDEOS_DIR.iterdir() if d.is_dir() and d.name != '_template']}"
+        )
         raise SystemExit(1)
 
     scenes_file = video_dir / "scenes.py"
@@ -137,9 +144,13 @@ def main():
         quality_flag = QUALITY_FLAGS.get(args.quality, "-qh")
         output_dir = OUTPUT_DIR / args.video
         cmd = [
-            sys.executable, "-m", "manim", "render",
+            sys.executable,
+            "-m",
+            "manim",
+            "render",
             quality_flag,
-            "--media_dir", str(output_dir),
+            "--media_dir",
+            str(output_dir),
             "-a",  # Render all scenes
             str(scenes_file),
         ]
