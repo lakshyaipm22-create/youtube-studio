@@ -1,89 +1,120 @@
 # Animation & Visual Design Standards
 
-This file governs how animations are designed and coded.
-It is subordinate to `youtube-strategy.md` — every animation decision serves viewer retention.
+Governs all animation for YouTube Shorts (45-60s, vertical 1080×1920).
 
-## Core Principle
+## Technical Foundation
 
-Think like an animator, not a programmer.
-Prioritize viewer engagement over minimizing code.
+- `VoiceoverScene` + `MovingCameraScene` (dual inheritance)
+- `manim-voiceover` with `GTTSService` for auto voice-animation sync
+- **Config: 1080×1920 (VERTICAL), 60fps, background "#0e1116"**
+- Each `with self.voiceover(text=...)` block = 2-3 sentences max
 
-## Scene Design Process (Mandatory)
+## Vertical Frame Config
 
-Before writing ANY Manim code, complete these steps:
+```python
+config.background_color = "#0e1116"
+config.pixel_width = 1080
+config.pixel_height = 1920
+config.frame_rate = 60
+```
 
-1. Define the visual goal — what should the viewer understand?
-2. Decide camera movement — static, zoom, pan, or follow?
-3. Design the animation sequence — what appears, transforms, moves, exits?
-4. Decide object transformations — morph, scale, recolor, reposition?
-5. Plan pacing — match narration rhythm, vary speed for emphasis
-6. Plan transitions — smooth connection to next scene
-7. THEN write Manim code
+Camera frame for vertical:
+```python
+self.camera.frame.set(width=9, height=16)
+```
 
-## Visual Rules
+## Shorts-Specific Visual Rules
 
-- Never leave the screen static for more than 3 seconds
-- Always animate entrances (FadeIn, Write, Create — never `self.add()`)
-- Always animate exits (FadeOut, Uncreate — never `self.remove()`)
-- Avoid text-only scenes — always pair text with visuals
-- Use SVG illustrations from `assets/svg/` over primitive shapes
-- Limit on-screen text to 2 lines maximum
-- Use stagger delays (0.2s) when revealing groups
-- Prefer Transform/ReplacementTransform over FadeOut + FadeIn
-- Objects move with purpose (toward related objects, along logical paths)
-- One focal point at a time — don't compete for attention
+### Pace: New Visual Every 3 Seconds
+- Shorts viewers are FASTER than long-form viewers
+- If nothing changes for 3 seconds, they swipe away
+- Every voiceover block must have multiple animations inside
 
-## Camera Rules
+### Text Size: BIGGER Than Long-Form
+- Titles: font_size=48-56 (must be readable on phone)
+- Body: font_size=32-40
+- Labels: font_size=24-28
+- Never below font_size=22 for anything
 
-- Subtle zoom (1.0 → 1.2) to draw attention
-- Pan to follow sequences or timelines
-- Reset camera before new sections
-- Never move the camera without purpose
+### Layout: VERTICAL Stacking
+- Objects stack top-to-bottom, NOT left-to-right
+- Title at top (UP * 6)
+- Main visual in center
+- Labels/numbers below
+- Keep content in center 70% of frame (safe zone for UI overlays)
 
-## Transition Rules
+### Frame Density
+- Phone screen is small — fill it MORE than horizontal
+- Every frame: title + visual + number/label minimum
+- No lonely object floating in space
 
-- Every scene ends with a clear exit animation
-- Default: `self.fade_out_all()`
-- Related scenes: transform key object into next scene's starting point
-- New topics: full fade to dark + brief pause + new entrance
-- Never cut abruptly
+## Color Palette
 
-## SVG-First Policy
+```python
+BG = "#0e1116"
+GOLD = "#F5C842"
+TEAL = "#2DCDC6"
+CORAL = "#FF6B6B"
+SOFT_WHT = "#E8E8F0"
+MUTED = "#6B6B8A"
+PURPLE = "#7B5EA7"
+GREEN = "#4CAF7D"
+```
 
-- Use SVG illustrations whenever the concept can be represented visually
-- Check `assets/manifest.yaml` for available assets before creating primitives
-- Animate SVGs: fade in, scale up, slide in
-- Match SVG colors to brand palette with `.set_color()`
+Higher contrast than long-form (phone screens in sunlight need it).
 
-## What NOT to Do
+## Helper Methods (Use in Every Short)
 
-- Don't create "slide deck" animations (static text + bullet points)
-- Don't show a wall of code all at once — reveal progressively
-- Don't use Manim default colors/fonts — always use brand styles
-- Don't leave objects on screen after they're discussed
-- Don't animate everything at the same speed — vary for emphasis
-- Don't use primitive circles/squares when an SVG would be clearer
+```python
+def make_title(self, text, color=TEAL):
+    title = Text(text, font_size=44, color=color, weight=BOLD)
+    title.to_edge(UP, buff=0.8)
+    underline = Line(
+        title.get_corner(DL) + DOWN * 0.12,
+        title.get_corner(DR) + DOWN * 0.12,
+        color=color, stroke_width=2,
+    )
+    return VGroup(title, underline)
 
-## Viewer Retention Visual Rules
+def clear_all(self):
+    if self.mobjects:
+        self.play(*[FadeOut(m) for m in self.mobjects], run_time=0.5)
+```
 
-- First 5 seconds must have motion
-- Change something visual every 3-5 seconds
-- Build complexity gradually (simple → detailed)
-- End scenes on a visual "question" the next scene answers
+## Animation Variety (7+ Types Per Short)
+
+Even in 50 seconds, use at minimum 7 different animation types:
+- `FadeIn` (with scale or shift)
+- `Write` / `DrawBorderThenFill`
+- `Create` (for lines, arrows)
+- `GrowFromEdge` / `GrowFromCenter` (for bars)
+- `LaggedStart` (for groups)
+- `Indicate` / `Circumscribe` / `Flash` (for emphasis)
+- Camera zoom (`self.camera.frame.animate`)
+- `Transform` / `ReplacementTransform`
+
+## Known Manim Bugs (Avoid)
+
+- `GrowArrow()` — BROKEN. Use `Create()`.
+- `Integer()` / `MathTex()` — need LaTeX. Use `Text()`.
+- `Cross()` — sometimes needs LaTeX. Use two Lines.
+- `interpolate_color()` with hex strings — wrap in `ManimColor()`.
+
+## Engagement Techniques for Shorts
+
+- **Number reveal**: Big text scaling in with `FadeIn(scale=1.5)`
+- **Scale comparison**: Tiny object vs huge object
+- **Flash for "wow" moment**: `Flash(obj, color=GOLD, flash_radius=2)`
+- **Circumscribe for key fact**: draws attention
+- **Camera zoom**: zoom into tiny detail, zoom out to reveal scale
 
 ## Pre-Render Checklist
 
-Before committing a scene:
-- [ ] Every object has entrance + exit animation
-- [ ] No static frames > 3 seconds
-- [ ] Brand colors used consistently
-- [ ] Text readable (font size, contrast, screen time)
-- [ ] SVGs used where appropriate
-- [ ] Camera movement serves a purpose
-- [ ] Pacing matches narration timing
-
-## File References
-
-- #[[file:ANIMATION_GUIDE.md]] — Detailed guide (extended reference)
-- #[[file:studio/styles.py]] — Brand colors, fonts, timing constants
-- #[[file:studio/base.py]] — StudioScene base class
+- [ ] Duration: 45-60 seconds (check narration word count: 100-150 words)
+- [ ] Vertical format (1080×1920)
+- [ ] Hook in first 3 seconds
+- [ ] New visual every 3 seconds
+- [ ] 7+ animation types used
+- [ ] Text readable at phone size (font_size ≥ 22)
+- [ ] Payoff moment near the end
+- [ ] No dead frames

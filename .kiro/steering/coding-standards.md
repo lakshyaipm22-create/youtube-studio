@@ -2,62 +2,87 @@
 
 Rules for all Python/Manim code in this repository.
 
-## Manim Scene Code
+## Video Scene Files (Shorts: 45-60s, Vertical)
 
-### Inheritance & Imports
+### Structure
+```python
+from manim import *
+from manim_voiceover import VoiceoverScene
+from manim_voiceover.services.gtts import GTTSService
 
-- All scenes inherit from `StudioScene` (from `studio/base.py`)
-- Always import: `from studio.styles import *`
-- Always import: `from studio.base import StudioScene`
-- Use `from studio.intro import IntroScene` and `from studio.outro import OutroScene` for bookend scenes
+BG = "#0e1116"
+GOLD = "#F5C842"
+TEAL = "#2DCDC6"
+CORAL = "#FF6B6B"
+SOFT_WHT = "#E8E8F0"
+MUTED = "#6B6B8A"
+PURPLE = "#7B5EA7"
+GREEN = "#4CAF7D"
 
-### Use Brand Helpers (Never Raw Manim)
+config.background_color = BG
+config.pixel_width = 1080    # VERTICAL
+config.pixel_height = 1920   # VERTICAL
+config.frame_rate = 60
 
-- Text: `brand_text()`, `brand_title()` — never raw `Text()`
-- Code: `brand_code()` — never raw `Code()`
-- Colors: `BRAND_PRIMARY`, `BRAND_ACCENT`, etc. — never hex strings in scene code
-- Fonts: `FONT_PRIMARY`, `FONT_CODE` — never string literals
+class VideoName(VoiceoverScene, MovingCameraScene):
+    def setup(self):
+        VoiceoverScene.setup(self)
+        MovingCameraScene.setup(self)
+        self.set_speech_service(GTTSService(lang="en", tld="com"))
+        self.camera.frame.set(width=9, height=16)
 
-### Use Constants (Never Magic Numbers)
+    def construct(self):
+        self.hook()
+        self.explain()
+        self.payoff()
 
-- Timing: `FADE_NORMAL`, `PAUSE_MEDIUM`, `STAGGER_DELAY` — never raw floats
-- Positions: `POS_TITLE`, `POS_CENTER`, `POS_LEFT` — never raw coordinate vectors
-- Sizes: `FONT_SIZE_TITLE`, `FONT_SIZE_BODY` — never raw integers
-- Pauses: `self.pause_beat()`, `self.pause_medium()` — never raw `self.wait(0.5)`
+    def make_title(self, text, color=TEAL):
+        title = Text(text, font_size=44, color=color, weight=BOLD)
+        title.to_edge(UP, buff=0.8)
+        underline = Line(
+            title.get_corner(DL) + DOWN * 0.12,
+            title.get_corner(DR) + DOWN * 0.12,
+            color=color, stroke_width=2,
+        )
+        return VGroup(title, underline)
 
-### Scene Structure
+    def clear_all(self):
+        if self.mobjects:
+            self.play(*[FadeOut(m) for m in self.mobjects], run_time=0.5)
+```
 
-- One `scenes.py` file per video with multiple scene classes
-- Scene classes listed in render order in `video.yaml`
-- Keep scenes focused: one concept per scene class
-- Only split into multiple files if a video has 10+ scene classes
+### Key Differences from Long-Form
+- **Vertical config**: pixel_width=1080, pixel_height=1920
+- **Camera frame**: width=9, height=16 (not 16×9)
+- **3 sections max**: hook() → explain() → payoff()
+- **100-150 words total** narration
+- **No section_outro with subscribe CTA** — Shorts don't need it
+- **Larger font sizes** — minimum 22, titles 44-56
 
-## Pipeline Code
+### Things That DON'T Work (Avoid)
+- `GrowArrow()` — use `Create()` for arrows
+- `Integer()` / `MathTex()` — use `Text()` for all numbers
+- `Cross()` — use two diagonal Lines
+- `ChangeDecimalToValue()` — use Text with FadeIn(scale=1.5)
 
-- Scripts in `pipeline/` are standalone CLI tools
-- Each script has argparse with `--help`
-- Each script works from the repo root via Makefile
-- Use `pathlib.Path` for all file operations
-- Use `yaml.safe_load()` for YAML (never `yaml.load()`)
+### Things That Work Great
+- `BraceBetweenPoints()` for measurements
+- `Flash()` for emphasis
+- `GrowFromEdge()` / `GrowFromCenter()` for bars
+- `Indicate()` / `Circumscribe()` for highlighting
+- `LaggedStart()` for staggered reveals
+- Camera frame manipulation for zoom effects
 
 ## General Python
 
-- Python 3.10+ (use `X | None` not `Optional[X]`)
-- Type hints on function signatures
-- Docstrings on all public functions and classes
-- No wildcard imports in pipeline code (only in scenes where `from studio.styles import *` is the convention)
-
-## Reusability Rule
-
-Only extract code to `studio/` after the same pattern appears in 3+ videos.
-Do not pre-build reusable modules speculatively.
-Grow the library organically from real repetition.
+- Python 3.10+
+- Ruff: line-length 100, rules E/F/I/UP/B
+- F403/F405 (wildcard imports) allowed in video files
+- Import order: stdlib → third-party (blank line) → first-party
 
 ## Naming Conventions
 
-- Video folders: `NNN_snake_case_title/` (e.g., `001_what_is_python/`)
-- Scene classes: PascalCase describing content (e.g., `WhyPythonIsPopular`)
-- Module files: snake_case (e.g., `text_animations.py`)
-- Constants: UPPER_SNAKE_CASE
-- Functions: snake_case
-- Never rename video folders after creation (gaps in numbering are acceptable)
+- Video files: `descriptive_name.py` (e.g., `phone_vs_apollo.py`)
+- Scene classes: PascalCase (e.g., `PhoneVsApollo`)
+- Video folders: `NNN_snake_case/`
+- Methods: `hook`, `explain`, `payoff` (3-act structure)

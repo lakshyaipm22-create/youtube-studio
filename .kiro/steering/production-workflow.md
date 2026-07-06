@@ -1,100 +1,97 @@
 # Production Workflow
 
-How videos are produced from idea to export.
-This defines the order of operations and what each stage produces.
+## Format: YouTube Shorts / Instagram Reels
 
-## Pipeline Stages
+**45-60 seconds. Vertical (1080×1920). One fact per video.**
 
-```
-1. Topic Validation → 2. Pre-Production → 3. Script → 4. Storyboard →
-5. Animation Design → 6. Manim Code → 7. Voice → 8. Render →
-9. Subtitles → 10. Quality Review → 11. Export
-```
-
-## Stage Details
-
-### 1. Topic Validation (Human + AI)
-
-Before committing to a video, validate:
-- Does this topic have a large potential audience?
-- Is there a curiosity hook? ("Wait... really?")
-- Can it be explained visually with animation?
-- Is it evergreen (views for years)?
-- Can it fit in 3-4 minutes?
-
-Output: Go/no-go decision.
-
-### 2. Pre-Production (AI generates, human reviews)
-
-Produce:
-- 10 clickable title options
-- 5 thumbnail concepts
-- Video outline with hook, retention plan, and structure
-
-### 3. Script Writing (AI drafts, human edits)
-
-Rules:
-- Conversational tone, simple English, short sentences
-- Hook in first 5-10 seconds (never "Hello everyone")
-- One concept per video
-- Every sentence must be animatable
-- Natural humor, no filler
-- Refer to #[[file:.kiro/steering/youtube-strategy.md]] for full script rules
-
-### 4. Storyboard (AI generates, human approves)
-
-For each scene:
-- What the viewer sees every second
-- Object entrances, movements, exits
-- Camera behavior
-- Timing aligned to narration
-
-### 5. Animation Design (AI generates)
-
-Translate storyboard into technical plan:
-- Which Manim objects and SVGs
-- Animation sequence with timestamps
-- Required assets from manifest
-- Transitions between scenes
-
-### 6. Manim Code (AI generates, may need human fixes)
-
-Write scene classes following coding-standards.md.
-Reference the storyboard for timing and animation-quality.md for technique.
-
-### 7-11. Automated Pipeline
+## One Command to Render
 
 ```bash
-make produce v=NNN_slug
+manim render -qh videos/NNN_slug/scenes/video.py ClassName
 ```
 
-This runs: voice → render → subtitles → (quality review when implemented) → export.
+Produces: `.mp4` (vertical) + `.srt` (subtitles)
 
-## Human Touchpoints
+## Video File Template (Shorts)
 
-| Stage | Human Involvement | Time |
-|-------|-------------------|------|
-| Topic selection | Decision | 1 min |
-| Research review | Verify flagged claims | 3 min |
-| Script edit | Refine AI draft | 10-15 min |
-| Storyboard review | Approve visual plan | 5 min |
-| Scene review | Check for issues | 5-10 min |
-| Quality review | Final approval | 2 min |
-| **Total** | | **~30 min/video** |
+```python
+from manim import *
+from manim_voiceover import VoiceoverScene
+from manim_voiceover.services.gtts import GTTSService
 
-## Status Tracking
+BG = "#0e1116"
+# ... palette constants
 
-Video status in `video.yaml` progresses through:
+config.background_color = BG
+config.pixel_width = 1080
+config.pixel_height = 1920
+config.frame_rate = 60
+
+class TopicName(VoiceoverScene, MovingCameraScene):
+    def setup(self):
+        VoiceoverScene.setup(self)
+        MovingCameraScene.setup(self)
+        self.set_speech_service(GTTSService(lang="en", tld="com"))
+        self.camera.frame.set(width=9, height=16)
+
+    def construct(self):
+        self.hook()
+        self.explain()
+        self.payoff()
 ```
-draft → scripted → storyboarded → animated → rendered → published
+
+## 3-Act Structure (50 seconds)
+
+| Act | Time | Purpose | Words |
+|-----|------|---------|-------|
+| Hook | 0-8s | Shocking statement | 20-25 |
+| Explain | 8-45s | Visual explanation | 70-100 |
+| Payoff | 45-55s | "Wow" reveal | 20-30 |
+
+**Total: 100-150 words. No more.**
+
+## Production Workflow
+
+1. **Choose fact** — one mind-blowing statement (1 min)
+2. **Write .py file** — 3 methods, 100-150 words narration (AI generates, human reviews)
+3. **Preview** at 480p: `manim render -ql video.py ClassName` (1 min render)
+4. **Watch** — engaging? pacing? (30 sec)
+5. **Fix** if needed (5 min)
+6. **Final render** at 1080p: `manim render -qh video.py ClassName` (2-3 min)
+7. **Upload** to YouTube Shorts + Instagram Reels
+
+**Human time per Short: 10-15 minutes.**
+**Target: 1 Short per day, batch 5-7 in one session.**
+
+## Batch Production
+
+Generate 5-7 Shorts in one Kiro session:
+```
+"Generate 5 YouTube Shorts about: [topic1], [topic2], [topic3], [topic4], [topic5]"
 ```
 
-Update status as each stage completes.
+Each one is an independent .py file. Render all, review all, upload all.
 
-## Automation Boundary
+## File Structure
 
-- Stages 7-11 are fully automated (no human needed)
-- Stages 3-6 are AI-generated with human review
-- Stages 1-2 are human decisions assisted by AI
+```
+videos/
+├── 001_phone_vs_apollo/scenes/phone_vs_apollo.py
+├── 002_paper_42_folds/scenes/paper_folds.py
+├── 003_neutron_star_weight/scenes/neutron_star.py
+└── ...
+```
 
-The goal is ~80% automation by time, with human effort focused on creative decisions only.
+## Upload Strategy
+
+- YouTube Shorts: vertical MP4, no edits needed
+- Instagram Reels: same file, add caption in app
+- TikTok: same file, add caption in app
+- All three platforms from one render
+
+## Quality Gate
+
+Before uploading:
+> "Would I stop scrolling for this?"
+> "Would I share this?"
+> "Is the payoff satisfying?"

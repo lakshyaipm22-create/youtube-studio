@@ -1,74 +1,47 @@
 # Asset Management
 
-Rules for organizing, finding, and using assets across the project.
+## Build With Manim (Primary Approach)
 
-## Asset Locations
+For Shorts, build ALL visuals with Manim primitives:
+- Rectangles, Circles, Lines, Arrows, Polygons
+- Text with bold/italic/color variation
+- VGroups composed into objects (buildings, phones, planets)
+- BraceBetweenPoints for measurements
 
-| Type | Path | Tracked in Git? |
-|------|------|----------------|
-| SVG illustrations | `assets/svg/{category}/` | Yes |
-| Fonts | `assets/fonts/` | Yes (unless > 10MB) |
-| Background music | `assets/music/` | Yes (unless > 10MB) |
-| Sound effects | `assets/sounds/` | Yes |
-| Raster images | `assets/images/` | Yes |
-| Video-specific assets | `videos/NNN/assets/` | Yes |
-| Rendered output | `output/` | No (gitignored) |
-| Generated audio | `output/` | No (gitignored) |
+Faster than finding SVGs. Consistent style. Works every time.
 
-## SVG Library Categories
+## Color Palette (Copy Into Every Video)
 
-```
-assets/svg/
-├── people/       # Characters, avatars, teams
-├── business/     # Office, presentations, meetings
-├── finance/      # Money, charts, banking
-├── technology/   # Computers, servers, phones, code
-├── science/      # Lab, atoms, biology, chemistry
-├── maps/         # World maps, country outlines
-├── icons/        # UI icons, symbols, checkmarks
-└── arrows/       # Directional arrows, pointers
+```python
+BG = "#0e1116"
+GOLD = "#F5C842"
+TEAL = "#2DCDC6"
+CORAL = "#FF6B6B"
+SOFT_WHT = "#E8E8F0"
+MUTED = "#6B6B8A"
+PURPLE = "#7B5EA7"
+GREEN = "#4CAF7D"
 ```
 
-## SVG-First Rule
+## Proven Visual Patterns for Shorts
 
-When a concept can be represented visually:
-1. Check `assets/manifest.yaml` for existing SVG
-2. If match found: use it
-3. If no match: check if an appropriate free SVG exists online
-4. If nothing suitable: use Manim primitives as last resort
+1. **Big number reveal**: Text(font_size=80+) with FadeIn(scale=1.5)
+2. **Scale comparison**: Tiny object next to huge object (vertical stack)
+3. **Growing bar**: Rectangle + GrowFromEdge (vertical growth works great for vertical video)
+4. **Earth-Moon line**: Two circles + Line + BraceBetweenPoints
+5. **Grid of objects**: arrange_in_grid (doors, computers, etc.)
+6. **Quote card**: RoundedRectangle + italic text
+7. **Cash stack**: Green rectangles staggered with LaggedStart
+8. **Stretching object**: Rectangle that stretches (paper fold)
 
-SVGs instantly make videos look professional. Primitives look amateurish.
+## Vertical Layout Tips
 
-## Asset Manifest
+- Stack objects TOP to BOTTOM (not left-right)
+- Use UP * 5-6 for top, DOWN * 5-6 for bottom
+- Center content in middle 70% (avoid edge clipping)
+- Bigger everything (phone screens are small)
 
-`assets/manifest.yaml` is the AI-readable index of all reusable assets.
+## When to Use SVGs
 
-Every SVG entry has:
-- `path`: file path relative to repo root
-- `keywords`: terms that would trigger this asset's use
-- `colors`: brand colors it uses
-- `default_height`: suggested Manim height
-
-When generating scenes, always consult the manifest to find appropriate visuals.
-When adding new SVGs, always add an entry to the manifest.
-
-## Naming Conventions
-
-- SVG files: `descriptive_name.svg` (snake_case, no numbers)
-- Music files: `mood_description.mp3` (e.g., `chill_ambient.mp3`)
-- Sound effects: `action_description.wav` (e.g., `whoosh_fast.wav`)
-- Fonts: original name from source (e.g., `Inter-Regular.ttf`)
-
-## Shared vs. Video-Specific
-
-- If used by 2+ videos → lives in `assets/` (shared)
-- If used by exactly 1 video → lives in `videos/NNN/assets/` (specific)
-- If something starts video-specific but gets reused → move it to shared
-
-## Recommended Free Sources
-
-- SVG illustrations: unDraw, Storyset, SVG Repo
-- Icons: Heroicons, Tabler Icons, Simple Icons
-- Music: YouTube Audio Library, Pixabay Music
-- Sound effects: Pixabay Sound Effects, Freesound.org
-- Fonts: Google Fonts (Inter, JetBrains Mono)
+Only if Manim primitives genuinely can't represent the concept.
+For 45-second Shorts, simple geometry almost always works better.
