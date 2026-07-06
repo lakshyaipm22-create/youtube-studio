@@ -1,100 +1,89 @@
 # Production Workflow
 
-How videos are produced from idea to export.
-This defines the order of operations and what each stage produces.
+## The Proven Approach: One File Per Video
 
-## Pipeline Stages
+Each video is a **single Python file** using `manim-voiceover`.
+Narration and animation live together — perfectly synced, no pipeline needed.
+
+### File Structure
 
 ```
-1. Topic Validation → 2. Pre-Production → 3. Script → 4. Storyboard →
-5. Animation Design → 6. Manim Code → 7. Voice → 8. Render →
-9. Subtitles → 10. Quality Review → 11. Export
+videos/NNN_slug/
+├── video_name.py    # THE video (narration + animation + everything)
+└── assets/          # Video-specific SVGs/images (if needed)
 ```
 
-## Stage Details
+Rendering produces: `.mp4` (video) + `.srt` (subtitles) automatically.
 
-### 1. Topic Validation (Human + AI)
-
-Before committing to a video, validate:
-- Does this topic have a large potential audience?
-- Is there a curiosity hook? ("Wait... really?")
-- Can it be explained visually with animation?
-- Is it evergreen (views for years)?
-- Can it fit in 3-4 minutes?
-
-Output: Go/no-go decision.
-
-### 2. Pre-Production (AI generates, human reviews)
-
-Produce:
-- 10 clickable title options
-- 5 thumbnail concepts
-- Video outline with hook, retention plan, and structure
-
-### 3. Script Writing (AI drafts, human edits)
-
-Rules:
-- Conversational tone, simple English, short sentences
-- Hook in first 5-10 seconds (never "Hello everyone")
-- One concept per video
-- Every sentence must be animatable
-- Natural humor, no filler
-- Refer to #[[file:.kiro/steering/youtube-strategy.md]] for full script rules
-
-### 4. Storyboard (AI generates, human approves)
-
-For each scene:
-- What the viewer sees every second
-- Object entrances, movements, exits
-- Camera behavior
-- Timing aligned to narration
-
-### 5. Animation Design (AI generates)
-
-Translate storyboard into technical plan:
-- Which Manim objects and SVGs
-- Animation sequence with timestamps
-- Required assets from manifest
-- Transitions between scenes
-
-### 6. Manim Code (AI generates, may need human fixes)
-
-Write scene classes following coding-standards.md.
-Reference the storyboard for timing and animation-quality.md for technique.
-
-### 7-11. Automated Pipeline
+### Render Command
 
 ```bash
-make produce v=NNN_slug
+manim render -qh videos/001_topic/video.py MainScene     # 1080p production
+manim render -ql videos/001_topic/video.py MainScene     # 480p preview
 ```
 
-This runs: voice → render → subtitles → (quality review when implemented) → export.
+### Video File Template
 
-## Human Touchpoints
+```python
+from manim import *
+from manim_voiceover import VoiceoverScene
+from manim_voiceover.services.gtts import GTTSService
 
-| Stage | Human Involvement | Time |
-|-------|-------------------|------|
-| Topic selection | Decision | 1 min |
-| Research review | Verify flagged claims | 3 min |
-| Script edit | Refine AI draft | 10-15 min |
-| Storyboard review | Approve visual plan | 5 min |
-| Scene review | Check for issues | 5-10 min |
-| Quality review | Final approval | 2 min |
-| **Total** | | **~30 min/video** |
+BG = "#0e1116"
+GOLD = "#F5C842"
+TEAL = "#2DCDC6"
+CORAL = "#FF6B6B"
+# ... palette constants
 
-## Status Tracking
+config.background_color = BG
+config.pixel_width = 1920
+config.pixel_height = 1080
+config.frame_rate = 60
 
-Video status in `video.yaml` progresses through:
+class VideoName(VoiceoverScene, MovingCameraScene):
+    def setup(self):
+        VoiceoverScene.setup(self)
+        MovingCameraScene.setup(self)
+        self.set_speech_service(GTTSService(lang="en", tld="com"))
+
+    def construct(self):
+        self.section_hook()
+        self.section_explanation()
+        self.section_takeaway()
+
+    def section_hook(self):
+        with self.voiceover(text="Narration here"):
+            self.play(...)
 ```
-draft → scripted → storyboarded → animated → rendered → published
-```
 
-Update status as each stage completes.
+### Why This Works
 
-## Automation Boundary
+- **Zero sync issues** — `with self.voiceover()` holds until speech finishes
+- **One file** — impossible to get out of sync across files
+- **One render** — produces video + audio + subtitles
+- **Easy to iterate** — change narration, re-render, done
 
-- Stages 7-11 are fully automated (no human needed)
-- Stages 3-6 are AI-generated with human review
-- Stages 1-2 are human decisions assisted by AI
+### The Old Pipeline (Deprecated for Video Creation)
 
-The goal is ~80% automation by time, with human effort focused on creative decisions only.
+The `produce.py` pipeline stages (research → script → storyboard → etc.) are useful for:
+- AI-generating a first draft of narration text
+- Batch research across many topics
+- NOT for final video production
+
+Final videos are always hand-crafted single .py files.
+
+### Workflow for Producing a Video
+
+1. **Choose topic** (human, 1 min)
+2. **Research** (AI draft or manual, 5 min review)
+3. **Write the .py file** — narration + animation together (AI generates, human refines)
+4. **Preview render** at 480p (`manim render -ql`)
+5. **Watch it** — is it engaging? boring? out of pace?
+6. **Iterate** sections that don't work
+7. **Final render** at 1080p (`manim render -qh`)
+8. **Upload** to YouTube
+
+### Human Time Per Video: 15-30 minutes
+
+Most time goes into reviewing and refining the AI-generated .py file.
+Rendering is automated. Voice is automated. Subtitles are automated.

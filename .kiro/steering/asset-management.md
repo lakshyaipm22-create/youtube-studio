@@ -1,74 +1,61 @@
 # Asset Management
 
-Rules for organizing, finding, and using assets across the project.
+## Primary Visual Approach: Build With Manim
+
+For most videos, build visuals directly in Manim using composed shapes:
+- Buildings: Rectangle + grid of small Rectangles (windows)
+- Planets: Circle with fill_color and label
+- Bar charts: Rectangles with GrowFromEdge
+- People: Simplified geometric compositions
+- Diagrams: Lines, Arrows, BraceBetweenPoints, labels
+
+This is FASTER than finding/downloading SVGs and produces consistent style.
+
+## When to Use External SVGs
+
+Only when Manim primitives can't represent the concept:
+- Detailed illustrations (animals, complex machinery)
+- Brand logos
+- Country maps
+- Scientific diagrams too complex to build from shapes
 
 ## Asset Locations
 
-| Type | Path | Tracked in Git? |
-|------|------|----------------|
-| SVG illustrations | `assets/svg/{category}/` | Yes |
-| Fonts | `assets/fonts/` | Yes (unless > 10MB) |
-| Background music | `assets/music/` | Yes (unless > 10MB) |
-| Sound effects | `assets/sounds/` | Yes |
-| Raster images | `assets/images/` | Yes |
-| Video-specific assets | `videos/NNN/assets/` | Yes |
-| Rendered output | `output/` | No (gitignored) |
-| Generated audio | `output/` | No (gitignored) |
+| Type | Path | Notes |
+|------|------|-------|
+| Shared SVGs | `assets/svg/{category}/` | For reuse across videos |
+| Video-specific | `videos/NNN/assets/` | One-off visuals |
+| Music | `assets/music/` | Background tracks |
+| Sounds | `assets/sounds/` | Effects (whoosh, ding) |
 
-## SVG Library Categories
+## Color Palette (Standard Across All Videos)
 
-```
-assets/svg/
-├── people/       # Characters, avatars, teams
-├── business/     # Office, presentations, meetings
-├── finance/      # Money, charts, banking
-├── technology/   # Computers, servers, phones, code
-├── science/      # Lab, atoms, biology, chemistry
-├── maps/         # World maps, country outlines
-├── icons/        # UI icons, symbols, checkmarks
-└── arrows/       # Directional arrows, pointers
+```python
+BG = "#0e1116"        # Deep navy background
+GOLD = "#F5C842"      # Emphasis, key numbers
+TEAL = "#2DCDC6"      # Positive, actions
+CORAL = "#FF6B6B"     # Danger, wrong, attention
+SOFT_WHT = "#E8E8F0"  # Body text
+MUTED = "#6B6B8A"     # Secondary info
+PURPLE = "#7B5EA7"    # Categories
+GREEN = "#4CAF7D"     # Success, correct
 ```
 
-## SVG-First Rule
+Copy this palette into every video file. Consistency = brand recognition.
 
-When a concept can be represented visually:
-1. Check `assets/manifest.yaml` for existing SVG
-2. If match found: use it
-3. If no match: check if an appropriate free SVG exists online
-4. If nothing suitable: use Manim primitives as last resort
+## Proven Visual Patterns (From Reference Videos)
 
-SVGs instantly make videos look professional. Primitives look amateurish.
+1. **Scale comparison**: Object A next to Object B (building vs stack)
+2. **Earth-Moon diagram**: Two circles, line between, BraceBetweenPoints below
+3. **Growing bars**: Rectangle with GrowFromEdge, year labels below
+4. **Dot spread**: Dots multiplying outward in rings (viral growth)
+5. **Paper fold**: Rectangle that stretches vertically in a loop
+6. **Number reveal**: Large bold Text with FadeIn(scale=1.5)
+7. **Quote card**: RoundedRectangle background + italic text
+8. **Comparison grid**: Small rectangles in grid (100 doors, pixels)
 
-## Asset Manifest
+## Free Music Sources
 
-`assets/manifest.yaml` is the AI-readable index of all reusable assets.
-
-Every SVG entry has:
-- `path`: file path relative to repo root
-- `keywords`: terms that would trigger this asset's use
-- `colors`: brand colors it uses
-- `default_height`: suggested Manim height
-
-When generating scenes, always consult the manifest to find appropriate visuals.
-When adding new SVGs, always add an entry to the manifest.
-
-## Naming Conventions
-
-- SVG files: `descriptive_name.svg` (snake_case, no numbers)
-- Music files: `mood_description.mp3` (e.g., `chill_ambient.mp3`)
-- Sound effects: `action_description.wav` (e.g., `whoosh_fast.wav`)
-- Fonts: original name from source (e.g., `Inter-Regular.ttf`)
-
-## Shared vs. Video-Specific
-
-- If used by 2+ videos → lives in `assets/` (shared)
-- If used by exactly 1 video → lives in `videos/NNN/assets/` (specific)
-- If something starts video-specific but gets reused → move it to shared
-
-## Recommended Free Sources
-
-- SVG illustrations: unDraw, Storyset, SVG Repo
-- Icons: Heroicons, Tabler Icons, Simple Icons
-- Music: YouTube Audio Library, Pixabay Music
-- Sound effects: Pixabay Sound Effects, Freesound.org
-- Fonts: Google Fonts (Inter, JetBrains Mono)
+- YouTube Audio Library (pre-cleared)
+- Pixabay Music (CC0)
+- Uppbeat (free tier)

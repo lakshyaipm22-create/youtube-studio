@@ -2,62 +2,93 @@
 
 Rules for all Python/Manim code in this repository.
 
-## Manim Scene Code
+## Video Scene Files (Primary Output)
 
-### Inheritance & Imports
+### Structure
+- One `.py` file per video
+- Inherits from `VoiceoverScene` + `MovingCameraScene`
+- Section methods: `self.section_hook()`, `self.section_explanation()`, etc.
+- Each section contains multiple `with self.voiceover(text=...)` blocks
+- 2-4 sentences max per voiceover block (keeps animations tight)
 
-- All scenes inherit from `StudioScene` (from `studio/base.py`)
-- Always import: `from studio.styles import *`
-- Always import: `from studio.base import StudioScene`
-- Use `from studio.intro import IntroScene` and `from studio.outro import OutroScene` for bookend scenes
+### Setup Pattern
+```python
+def setup(self):
+    VoiceoverScene.setup(self)
+    MovingCameraScene.setup(self)
+    self.set_speech_service(GTTSService(lang="en", tld="com"))
+    self.camera.background_color = "#0e1116"
+```
 
-### Use Brand Helpers (Never Raw Manim)
+### Color Constants (Top of File)
+```python
+BG = "#0e1116"
+GOLD = "#F5C842"
+TEAL = "#2DCDC6"
+CORAL = "#FF6B6B"
+SOFT_WHT = "#E8E8F0"
+MUTED = "#6B6B8A"
+PURPLE = "#7B5EA7"
+GREEN = "#4CAF7D"
+```
 
-- Text: `brand_text()`, `brand_title()` — never raw `Text()`
-- Code: `brand_code()` — never raw `Code()`
-- Colors: `BRAND_PRIMARY`, `BRAND_ACCENT`, etc. — never hex strings in scene code
-- Fonts: `FONT_PRIMARY`, `FONT_CODE` — never string literals
+### Config (Top of File)
+```python
+config.background_color = BG
+config.pixel_width = 1920
+config.pixel_height = 1080
+config.frame_rate = 60
+```
 
-### Use Constants (Never Magic Numbers)
+### Import Pattern
+```python
+from manim import *
+from manim_voiceover import VoiceoverScene
+from manim_voiceover.services.gtts import GTTSService
+```
 
-- Timing: `FADE_NORMAL`, `PAUSE_MEDIUM`, `STAGGER_DELAY` — never raw floats
-- Positions: `POS_TITLE`, `POS_CENTER`, `POS_LEFT` — never raw coordinate vectors
-- Sizes: `FONT_SIZE_TITLE`, `FONT_SIZE_BODY` — never raw integers
-- Pauses: `self.pause_beat()`, `self.pause_medium()` — never raw `self.wait(0.5)`
+### Things That DON'T Work (Avoid)
+- `GrowArrow()` — use `Create()` for arrows
+- `Integer()` / `MathTex()` — require LaTeX, use `Text()` instead
+- `Cross()` — sometimes needs LaTeX, use two diagonal `Line()` objects
+- `ChangeDecimalToValue()` — needs Integer/DecimalNumber (LaTeX)
+- Multiline strings in `Text()` — use separate Text objects or `\n`
 
-### Scene Structure
+### Things That DO Work Well
+- `BraceBetweenPoints()` for distance labels
+- `Flash()` for emphasis moments
+- `GrowFromEdge()` / `GrowFromCenter()` for bars and shapes
+- `interpolate_color()` for color gradients across groups
+- `Indicate()` / `Circumscribe()` for highlighting
+- `LaggedStart()` for staggered group reveals
+- Camera frame manipulation via `self.camera.frame.animate`
 
-- One `scenes.py` file per video with multiple scene classes
-- Scene classes listed in render order in `video.yaml`
-- Keep scenes focused: one concept per scene class
-- Only split into multiple files if a video has 10+ scene classes
+## Studio Library (Legacy)
+
+The `studio/` package (styles.py, base.py, intro.py, outro.py) was built
+for the multi-file pipeline approach. For new videos using manim-voiceover,
+define colors/constants directly in the video file instead.
+
+The studio library remains available for utility functions that prove
+useful across 3+ videos. Grow it organically.
 
 ## Pipeline Code
 
-- Scripts in `pipeline/` are standalone CLI tools
-- Each script has argparse with `--help`
-- Each script works from the repo root via Makefile
-- Use `pathlib.Path` for all file operations
-- Use `yaml.safe_load()` for YAML (never `yaml.load()`)
+Scripts in `pipeline/` are standalone CLI tools for batch operations.
+They are NOT part of the video rendering workflow.
 
 ## General Python
 
-- Python 3.10+ (use `X | None` not `Optional[X]`)
+- Python 3.10+
 - Type hints on function signatures
-- Docstrings on all public functions and classes
-- No wildcard imports in pipeline code (only in scenes where `from studio.styles import *` is the convention)
-
-## Reusability Rule
-
-Only extract code to `studio/` after the same pattern appears in 3+ videos.
-Do not pre-build reusable modules speculatively.
-Grow the library organically from real repetition.
+- Ruff: line-length 100, rules E/F/I/UP/B
+- F403/F405 (wildcard imports) allowed in video scene files
+- Import order: stdlib → third-party (blank line) → first-party (blank line)
 
 ## Naming Conventions
 
-- Video folders: `NNN_snake_case_title/` (e.g., `001_what_is_python/`)
-- Scene classes: PascalCase describing content (e.g., `WhyPythonIsPopular`)
-- Module files: snake_case (e.g., `text_animations.py`)
-- Constants: UPPER_SNAKE_CASE
-- Functions: snake_case
-- Never rename video folders after creation (gaps in numbering are acceptable)
+- Video files: `descriptive_name.py` (e.g., `paper_folding.py`)
+- Scene classes: PascalCase (e.g., `PaperFolding`, `WhyAirplanesFly`)
+- Video folders: `NNN_snake_case/` (e.g., `001_why_airplanes_dont_fall/`)
+- Section methods: `section_hook`, `section_explanation`, `section_takeaway`
+- Custom Mobject classes: PascalCase (e.g., `Wing`, `Door`, `SubtitleBar`)
